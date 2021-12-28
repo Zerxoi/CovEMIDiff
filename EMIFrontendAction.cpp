@@ -3,15 +3,6 @@
 #include "EMIFrontendAction.h"
 #include "EMIASTConsumer.h"
 
-std::unique_ptr<clang::ASTConsumer>
-EMIFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
-{
-  llvm::outs() << "** Creating AST consumer for: " << file << "\n";
-  TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
-
-  return std::make_unique<EMIASTConsumer>(TheRewriter, CI.getASTContext(), file);
-}
-
 void EMIFrontendAction::EndSourceFileAction()
 {
   // clang::SourceManager &SM = TheRewriter.getSourceMgr();
@@ -20,4 +11,22 @@ void EMIFrontendAction::EndSourceFileAction()
 
   // // Now emit the rewritten buffer.
   // TheRewriter.getEditBuffer(SM.getMainFileID()).write(llvm::outs());
+}
+
+std::unique_ptr<clang::ASTConsumer> EMIFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
+{
+  TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
+  return std::make_unique<clang::ASTConsumer>(*CreateEMIASTConsumer(TheRewriter, CI.getASTContext(), file));
+}
+
+
+
+EMIASTConsumer *GCovFrontendAction::CreateEMIASTConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
+{
+  return new GCovConsumer(R, Context, filename);
+}
+
+EMIASTConsumer *LLVMCovFrontendAction::CreateEMIASTConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
+{
+  return new LLVMCovConsumer(R, Context, filename);
 }
