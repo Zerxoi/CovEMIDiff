@@ -6,6 +6,11 @@ EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std
     : TheRewriter(r), Context(context), Parser(parser), Extension(extension)
 {
     Unexecuted = Parser->parse(filename + Extension);
+    for (const auto &line : *Unexecuted)
+    {
+        std::cout << line << "; ";
+    }
+    std::cout << std::endl;
 }
 
 int EMIASTVisitor::getLineNumber(const clang::Stmt *stmt)

@@ -15,5 +15,6 @@ int main(int argc, const char *argv[])
     // the helper newFrontendActionFactory to create a default factory that will
     // return a new EMIFrontendAction object every time.
     // To further customize this, we could create our own factory class.
-    return Tool.run(clang::tooling::newFrontendActionFactory<GCovFrontendAction>().get());
+    Tool.run(clang::tooling::newFrontendActionFactory<GCovFrontendAction>().get());
+    Tool.run(clang::tooling::newFrontendActionFactory<LLVMCovFrontendAction>().get());
 }

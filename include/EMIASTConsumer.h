@@ -7,7 +7,7 @@
 // by the Clang parser.
 class EMIASTConsumer : public clang::ASTConsumer
 {
-public:
+protected:
     EMIASTVisitor *Visitor;
 
 public:
