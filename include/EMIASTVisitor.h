@@ -19,9 +19,8 @@ private:
 public:
     EMIASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser *parser, std::string extension);
 
+    // Get line number of the statement
     int getLineNumber(const clang::Stmt *stmt);
 
     bool VisitStmt(clang::Stmt *s);
-
-    bool VisitFunctionDecl(clang::FunctionDecl *f);
 };

@@ -9,12 +9,14 @@ class EMIASTConsumer : public clang::ASTConsumer
 {
 protected:
     EMIASTVisitor *Visitor;
+    clang::ASTContext &Context;
+    std::string filename;
 
 public:
-    // Override the method that gets called for each parsed top-level
-    // declaration.
+    EMIASTConsumer(clang::ASTContext &Context, std::string &filename);
+    // Override the method that gets called for each parsed top-level declaration.
     bool HandleTopLevelDecl(clang::DeclGroupRef DR) override;
-
+    // Create visistor of code coverage tools
     virtual EMIASTVisitor *CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) = 0;
 };
 

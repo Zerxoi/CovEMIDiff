@@ -1,17 +1,26 @@
 #include "EMIASTConsumer.h"
+#include <iostream>
+
+EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename)
+    : Context(Context), filename(filename) {}
 
 bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR)
 {
+    clang::SourceManager &srcMgr = Context.getSourceManager();
     for (auto b = DR.begin(), e = DR.end(); b != e; ++b)
     {
+        // only manipulate the specific file
+        if (!srcMgr.getFilename((*b)->getLocation()).equals(filename))
+        {
+            continue;
+        }
         // Traverse the declaration using our AST visitor.
         Visitor->TraverseDecl(*b);
-        // (*b)->dump();
     }
     return true;
 }
 
-GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
+GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) : EMIASTConsumer(Context, filename)
 {
     Visitor = CreateVisitor(R, Context, filename);
 }
@@ -23,8 +32,7 @@ EMIASTVisitor *GCovConsumer::CreateVisitor(clang::Rewriter &R, clang::ASTContext
     return new EMIASTVisitor(R, Context, filename, parser, extension);
 }
 
-
-LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
+LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) : EMIASTConsumer(Context, filename)
 {
     Visitor = CreateVisitor(R, Context, filename);
 };

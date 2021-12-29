@@ -1,3 +1,4 @@
+#include <fstream>
 #include "clang/Frontend/CompilerInstance.h"
 
 #include "EMIFrontendAction.h"
@@ -5,28 +6,28 @@
 
 void EMIFrontendAction::EndSourceFileAction()
 {
-  // clang::SourceManager &SM = TheRewriter.getSourceMgr();
-  // llvm::outs() << "** EndSourceFileAction for: "
-  //              << SM.getFileEntryForID(SM.getMainFileID())->getName() << "\n";
+  clang::SourceManager &SM = TheRewriter.getSourceMgr();
 
-  // // Now emit the rewritten buffer.
-  // TheRewriter.getEditBuffer(SM.getMainFileID()).write(llvm::outs());
+  // Write EMI buffer to local file
+  std::error_code err;
+  std::string filename = ReportName + ".emi";
+  llvm::raw_fd_ostream ofs(filename, err);
+  TheRewriter.getEditBuffer(SM.getMainFileID()).write(ofs);
+  ofs.close();
+
+  llvm::outs() << "EMI file location: " + filename << "\n";
 }
 
-std::unique_ptr<clang::ASTConsumer> EMIFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
+std::unique_ptr<clang::ASTConsumer> GCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
 {
   TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
-  return std::make_unique<clang::ASTConsumer>(*CreateEMIASTConsumer(TheRewriter, CI.getASTContext(), file));
+  ReportName = file.str() + ".gcov";
+  return std::make_unique<GCovConsumer>(TheRewriter, CI.getASTContext(), file);
 }
 
-
-
-EMIASTConsumer *GCovFrontendAction::CreateEMIASTConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
+std::unique_ptr<clang::ASTConsumer> LLVMCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
 {
-  return new GCovConsumer(R, Context, filename);
-}
-
-EMIASTConsumer *LLVMCovFrontendAction::CreateEMIASTConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename)
-{
-  return new LLVMCovConsumer(R, Context, filename);
+  TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
+  ReportName = file.str() + ".llvm-cov";
+  return std::make_unique<LLVMCovConsumer>(TheRewriter, CI.getASTContext(), file);
 }
