@@ -1,5 +1,4 @@
 #include "EMIASTConsumer.h"
-#include <iostream>
 
 EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename)
     : Context(Context), filename(filename) {}

@@ -7,17 +7,16 @@
 class EMIFrontendAction : public clang::ASTFrontendAction
 {
 protected:
+    const std::string Extension;
     clang::Rewriter TheRewriter;
-    std::string ReportName;
+    std::string FileName;
 
 public:
-    EMIFrontendAction() {}
+    EMIFrontendAction(std::string Extension);
 
     // Write pruned source(EMI) to the local file.
-    // The name of local file is <report-name>.emi, the format of <report-name>
-    //  is <source-name>.<extension>, Where <source-name> is the file name of
-    // the source code and the <extension> of gcov and llvm-cov are gcov and
-    // llvm-cov respectively
+    // The format of local file is <source-name>.<extension>.emi.<source-extension>, 
+    // where <extension> is determined based on the code coverage tool used
     void EndSourceFileAction() override;
 
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override = 0;
@@ -26,11 +25,13 @@ public:
 class GCovFrontendAction : public EMIFrontendAction
 {
 public:
+    GCovFrontendAction();
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override;
 };
 
 class LLVMCovFrontendAction : public EMIFrontendAction
 {
 public:
+    LLVMCovFrontendAction();
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override;
 };
