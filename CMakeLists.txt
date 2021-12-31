@@ -19,42 +19,4 @@ include_directories(
 # list(APPEND CMAKE_MODULE_PATH ${CLANG_CMAKE_DIR})
 # include(AddClang)
 
-set(CLANG_LINK_LIBRARIES
-  libclang
-  clangTooling
-  clangARCMigrate
-  clangAST
-  clangASTMatchers
-  clangAnalysis
-  clangBasic
-  clangCodeGen
-  clangDriver
-  clangEdit
-  clangFrontend
-  clangFrontendTool
-  clangLex
-  clangParse
-  clangRewrite
-  clangRewriteFrontend
-  clangSema
-  clangSerialization
-  clangCodeGen
-  )
-
-function(clang_target_link target type)
-if (CLANG_LINK_CLANG_DYLIB)
-  target_link_libraries(${target} ${type} clang_shared)
-else()
-  target_link_libraries(${target} ${type} ${ARGN})
-endif()
-endfunction()
-
-add_executable(${PROJECT_NAME}
-  main.cpp
-  EMIFrontendAction.cpp
-  EMIASTConsumer.cpp
-  EMIASTVisitor.cpp
-  CoverageParser.cpp
-  )
-
-clang_target_link(${PROJECT_NAME} PRIVATE ${CLANG_LINK_LIBRARIES})
+add_subdirectory(emi)
