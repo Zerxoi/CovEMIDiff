@@ -25,6 +25,12 @@ if [ -n $EMI_BIN_DIR ];then
     PATH=$EMI_BIN_DIR:$PATH
 fi
 
+if [ ! -d "experiment" ]; then
+    mkdir experiment
+fi
+
+cd experiment
+
 # Directory initialization
 if [ ! -d "diff" ]; then
     mkdir diff
