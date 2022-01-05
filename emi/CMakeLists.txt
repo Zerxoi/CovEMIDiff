@@ -20,6 +20,10 @@ set(CLANG_LINK_LIBRARIES
   clangCodeGen
   )
 
+include_directories(
+  "include"
+  )
+
 add_executable(emi
   main.cpp
   EMIFrontendAction.cpp

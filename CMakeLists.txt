@@ -6,7 +6,6 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
 include_directories(
-  "${CMAKE_CURRENT_SOURCE_DIR}/include"
   # add include path of llvm to include directories
   ${LLVM_INCLUDE_DIRS}
   )
