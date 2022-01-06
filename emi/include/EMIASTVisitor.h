@@ -8,7 +8,7 @@
 // we're interested in by overriding relevant methods.
 class EMIASTVisitor : public clang::RecursiveASTVisitor<EMIASTVisitor>
 {
-private:
+protected:
     CoverageParser *Parser;
     std::string Extension;
 
@@ -22,5 +22,23 @@ public:
     // Get line number of the statement
     int getLineNumber(const clang::Stmt *stmt);
 
+    virtual bool VisitStmt(clang::Stmt *s);
+    virtual bool shouldTraversePostOrder() const;
+};
+
+class PreASTVisitor : public EMIASTVisitor
+{
+public:
+    PreASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser *parser, std::string extension);
+
+    bool VisitStmt(clang::Stmt *s);
+};
+
+class PostASTVisitor : public EMIASTVisitor
+{
+public:
+    PostASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser *parser, std::string extension);
+
+    bool shouldTraversePostOrder() const;
     bool VisitStmt(clang::Stmt *s);
 };

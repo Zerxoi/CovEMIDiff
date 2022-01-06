@@ -4,7 +4,7 @@
 #include "EMIFrontendAction.h"
 #include "EMIASTConsumer.h"
 
-EMIFrontendAction::EMIFrontendAction(std::string Extension) : Extension(Extension) {}
+EMIFrontendAction::EMIFrontendAction(std::string Extension, int MethodOption) : Extension(Extension), MethodOption(MethodOption) {}
 
 void EMIFrontendAction::EndSourceFileAction()
 {
@@ -23,20 +23,20 @@ void EMIFrontendAction::EndSourceFileAction()
   llvm::outs() << "EMI file location: " + emi << "\n";
 }
 
-GCovFrontendAction::GCovFrontendAction() : EMIFrontendAction(".gcov") {}
+GCovFrontendAction::GCovFrontendAction(int MethodOption) : EMIFrontendAction(".gcov", MethodOption) {}
 
 std::unique_ptr<clang::ASTConsumer> GCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
 {
   TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
   FileName = file.str();
-  return std::make_unique<GCovConsumer>(TheRewriter, CI.getASTContext(), file);
+  return std::make_unique<GCovConsumer>(TheRewriter, CI.getASTContext(), file, MethodOption);
 }
 
-LLVMCovFrontendAction::LLVMCovFrontendAction() : EMIFrontendAction(".llvm-cov") {}
+LLVMCovFrontendAction::LLVMCovFrontendAction(int MethodOption) : EMIFrontendAction(".llvm-cov", MethodOption) {}
 
 std::unique_ptr<clang::ASTConsumer> LLVMCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file)
 {
   TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
   FileName = file.str();
-  return std::make_unique<LLVMCovConsumer>(TheRewriter, CI.getASTContext(), file);
+  return std::make_unique<LLVMCovConsumer>(TheRewriter, CI.getASTContext(), file, MethodOption);
 }

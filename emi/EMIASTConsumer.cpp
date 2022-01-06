@@ -1,7 +1,7 @@
 #include "EMIASTConsumer.h"
 
-EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename)
-    : Context(Context), filename(filename) {}
+EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename, int MethodOption)
+    : Context(Context), filename(filename), MethodOption(MethodOption) {}
 
 bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR)
 {
@@ -19,7 +19,7 @@ bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR)
     return true;
 }
 
-GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) : EMIASTConsumer(Context, filename)
+GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption) : EMIASTConsumer(Context, filename, MethodOption)
 {
     Visitor = CreateVisitor(R, Context, filename);
 }
@@ -28,10 +28,14 @@ EMIASTVisitor *GCovConsumer::CreateVisitor(clang::Rewriter &R, clang::ASTContext
 {
     CoverageParser *parser = new CoverageParser("^\\s*#####:\\s*(\\d+):.*$");
     std::string extension = ".gcov";
-    return new EMIASTVisitor(R, Context, filename, parser, extension);
+    if (MethodOption == 1)
+    {
+        return new PostASTVisitor(R, Context, filename, parser, extension);
+    }
+    return new PreASTVisitor(R, Context, filename, parser, extension);
 }
 
-LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) : EMIASTConsumer(Context, filename)
+LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption) : EMIASTConsumer(Context, filename, MethodOption)
 {
     Visitor = CreateVisitor(R, Context, filename);
 };
@@ -40,5 +44,9 @@ EMIASTVisitor *LLVMCovConsumer::CreateVisitor(clang::Rewriter &R, clang::ASTCont
 {
     CoverageParser *parser = new CoverageParser("^\\s*(\\d+)\\|\\s*0\\|.*$");
     std::string extension = ".llvm-cov";
-    return new EMIASTVisitor(R, Context, filename, parser, extension);
+    if (MethodOption == 1)
+    {
+        return new PostASTVisitor(R, Context, filename, parser, extension);
+    }
+    return new PreASTVisitor(R, Context, filename, parser, extension);
 }

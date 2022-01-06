@@ -11,9 +11,10 @@ protected:
     EMIASTVisitor *Visitor;
     clang::ASTContext &Context;
     std::string filename;
+    int MethodOption;
 
 public:
-    EMIASTConsumer(clang::ASTContext &Context, std::string &filename);
+    EMIASTConsumer(clang::ASTContext &Context, std::string &filename, int MethodOption);
     // Override the method that gets called for each parsed top-level declaration.
     bool HandleTopLevelDecl(clang::DeclGroupRef DR) override;
     // Create visistor of code coverage tools
@@ -23,13 +24,13 @@ public:
 class LLVMCovConsumer : public EMIASTConsumer
 {
 public:
-    LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
+    LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption);
     EMIASTVisitor *CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
 };
 
 class GCovConsumer : public EMIASTConsumer
 {
 public:
-    GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
+    GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption);
     EMIASTVisitor *CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
 };

@@ -21,16 +21,30 @@ int EMIASTVisitor::getLineNumber(const clang::Stmt *stmt)
 
 bool EMIASTVisitor::VisitStmt(clang::Stmt *s)
 {
-    clang::SourceRange range = s->getSourceRange();
+    return true;
+}
+
+bool EMIASTVisitor::shouldTraversePostOrder() const
+{
+    return false;
+}
+
+PreASTVisitor::PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
+    : EMIASTVisitor(r, context, filename, parser, extension)
+{
+}
+
+bool PreASTVisitor::VisitStmt(clang::Stmt *s)
+{
     clang::SourceManager &srcMgr = Context.getSourceManager();
-    int beginLine = srcMgr.getSpellingLineNumber(range.getBegin());
+    int beginLine = srcMgr.getSpellingLineNumber(s->getBeginLoc());
     // Prune unexecuted statement
     // Only unexecuted Stmt can be removed, and operations on compound statements
     // will cause repeated operations on statements. To avoid this case, compound
     // statements are not be pruned
     if (Unexecuted->count(beginLine) && !clang::isa<clang::CompoundStmt>(s))
     {
-        int endLine = srcMgr.getSpellingLineNumber(range.getEnd());
+        int endLine = srcMgr.getSpellingLineNumber(s->getEndLoc());
         // Stmt is traversed in DFS order. If the parent node is deleted,
         // it can still traverse to the child Stmt. If the child Stmt is
         // also deleted, a segfault will be thrown.
@@ -44,12 +58,50 @@ bool EMIASTVisitor::VisitStmt(clang::Stmt *s)
             Unexecuted->erase(i);
         }
 
-        // Log debug information
-        // s->dump();
-        // llvm::outs() << "Statement Begin Line: " << beginLine << "\n";
-        // llvm::outs() << "Statement End Line: " << endLine << "\n";
-
         TheRewriter.RemoveText(s->getSourceRange());
+    }
+    return true;
+}
+
+PostASTVisitor::PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
+    : EMIASTVisitor(r, context, filename, parser, extension)
+{
+}
+
+bool PostASTVisitor::shouldTraversePostOrder() const
+{
+    return true;
+}
+
+bool PostASTVisitor::VisitStmt(clang::Stmt *s)
+{
+    clang::SourceRange range = s->getSourceRange();
+    clang::SourceManager &srcMgr = Context.getSourceManager();
+    int beginLine = srcMgr.getSpellingLineNumber(range.getBegin());
+    if (Unexecuted->count(beginLine) && !clang::isa<clang::CompoundStmt>(s) && !clang::isa<clang::Expr>(s))
+    {
+        bool shouldDelete = true;
+        for (auto &child : s->children())
+        {
+            if (child != nullptr && clang::isa<clang::CompoundStmt>(child))
+            {
+                for (auto &grandchild : child->children())
+                {
+                    int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
+                    if (!Unexecuted->count(line))
+                    {
+                        shouldDelete = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (shouldDelete)
+        {
+            // s->dumpColor();
+            // llvm::outs() << "BeginLine: " << beginLine << "\n";
+            TheRewriter.RemoveText(s->getSourceRange());
+        }
     }
     return true;
 }
