@@ -4,12 +4,6 @@ EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std
     : Parser(parser), Extension(extension), TheRewriter(r), Context(context)
 {
     Unexecuted = Parser->parse(filename + Extension);
-    // Log unexecuted lines
-    // for (const auto &line : *Unexecuted)
-    // {
-    //     llvm::outs() << line << "; ";
-    // }
-    // llvm::outs() << "\n";
 }
 
 int EMIASTVisitor::getLineNumber(const clang::Stmt *stmt)
@@ -84,9 +78,15 @@ bool PostASTVisitor::VisitStmt(clang::Stmt *s)
         if (!parents.empty())
         {
             auto parentStmt = parents.begin()->get<clang::Stmt>();
+            // Because the expression is a statement subclass, if the unexecuted statement has a 
+            // sub-statement executed, then the statement should not be deleted, but the expression
+            // in the statement may still be deleted. Therefore, this problem can be avoided if
+            // only the direct sub-statement of the compound statement can be deleted
             if (parentStmt != nullptr && clang::isa<clang::CompoundStmt>(parentStmt))
             {
                 bool shouldDelete = true;
+                // If there are unexecuted statements in the sub-statements of the statement,
+                // it should not be deleted
                 for (auto &child : s->children())
                 {
                     if (child != nullptr && clang::isa<clang::CompoundStmt>(child))

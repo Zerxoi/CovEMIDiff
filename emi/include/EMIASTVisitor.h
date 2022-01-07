@@ -26,6 +26,9 @@ public:
     virtual bool shouldTraversePostOrder() const;
 };
 
+// Visit statement in preorder
+// If the command is not executed, regardless of whether the clause is executed,
+// the statement will be pruned, in order to expose more inconsistencies in results
 class PreASTVisitor : public EMIASTVisitor
 {
 public:
@@ -34,6 +37,10 @@ public:
     bool VisitStmt(clang::Stmt *s);
 };
 
+// Visit statement in postorder
+// If the statement is not executed, but the sub-statement of the statement is executed,
+// the statement will not be deleted, so that the granularity of pruning will be smaller
+// and it is easier to find inconsistent coverage
 class PostASTVisitor : public EMIASTVisitor
 {
 public:

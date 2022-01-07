@@ -5,7 +5,9 @@
 #include "EMIFrontendAction.h"
 
 static llvm::cl::OptionCategory EMIOptionCategory("EMI Options");
+// EMI prune method option - Specify the method of EMI pruning
 static llvm::cl::opt<int> MethodOption("m", llvm::cl::desc("EMI prune method"), llvm::cl::cat(EMIOptionCategory));
+// Output directory option - Specify the output directory of the generated EMI file
 static llvm::cl::opt<std::string> OutputOption("o", llvm::cl::desc("Explicitly specify a output directory"), llvm::cl::cat(EMIOptionCategory));
 
 int main(int argc, const char *argv[])
