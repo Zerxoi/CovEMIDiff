@@ -78,29 +78,37 @@ bool PostASTVisitor::VisitStmt(clang::Stmt *s)
     clang::SourceRange range = s->getSourceRange();
     clang::SourceManager &srcMgr = Context.getSourceManager();
     int beginLine = srcMgr.getSpellingLineNumber(range.getBegin());
-    if (Unexecuted->count(beginLine) && !clang::isa<clang::CompoundStmt>(s) && !clang::isa<clang::Expr>(s))
+    if (Unexecuted->count(beginLine) && !clang::isa<clang::CompoundStmt>(s))
     {
-        bool shouldDelete = true;
-        for (auto &child : s->children())
+        auto parents = Context.getParents(*s);
+        if (!parents.empty())
         {
-            if (child != nullptr && clang::isa<clang::CompoundStmt>(child))
+            auto parentStmt = parents.begin()->get<clang::Stmt>();
+            if (parentStmt != nullptr && clang::isa<clang::CompoundStmt>(parentStmt))
             {
-                for (auto &grandchild : child->children())
+                bool shouldDelete = true;
+                for (auto &child : s->children())
                 {
-                    int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
-                    if (!Unexecuted->count(line))
+                    if (child != nullptr && clang::isa<clang::CompoundStmt>(child))
                     {
-                        shouldDelete = false;
-                        break;
+                        for (auto &grandchild : child->children())
+                        {
+                            int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
+                            if (!Unexecuted->count(line))
+                            {
+                                shouldDelete = false;
+                                break;
+                            }
+                        }
                     }
                 }
+                if (shouldDelete)
+                {
+                    // s->dumpColor();
+                    // llvm::outs() << "BeginLine: " << beginLine << "\n";
+                    TheRewriter.RemoveText(s->getSourceRange());
+                }
             }
-        }
-        if (shouldDelete)
-        {
-            // s->dumpColor();
-            // llvm::outs() << "BeginLine: " << beginLine << "\n";
-            TheRewriter.RemoveText(s->getSourceRange());
         }
     }
     return true;
