@@ -26,10 +26,10 @@ include_directories(
 
 add_executable(emi
   main.cpp
-  EMIFrontendAction.cpp
-  EMIASTConsumer.cpp
   EMIASTVisitor.cpp
+  EMIASTConsumer.cpp
   CoverageParser.cpp
+  EMIFrontendAction.cpp
   )
 
 target_link_libraries(emi PRIVATE ${CLANG_LINK_LIBRARIES})
