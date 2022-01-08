@@ -94,7 +94,10 @@ bool PostASTVisitor::VisitStmt(clang::Stmt *s)
                         for (auto &grandchild : child->children())
                         {
                             int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
-                            if (!Unexecuted->count(line))
+                            // In addition to unexecuted statements should be deleted, DeclStatements that are not marked
+                            // in the .gcov file should also be deleted
+                            // !(Unexecuted->count(line) || (Extension.compare(".gcov") == 0 && clang::isa<clang::DeclStmt>(grandchild))
+                            if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(grandchild)))
                             {
                                 shouldDelete = false;
                                 break;
