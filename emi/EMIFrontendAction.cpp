@@ -28,7 +28,6 @@ void EMIFrontendAction::EndSourceFileAction()
   }
   emiPath /= filePath.stem();
   emiPath += Extension;
-  emiPath += ".emi";
   emiPath += filePath.extension();
 
   std::filesystem::create_directories(emiPath.parent_path());
