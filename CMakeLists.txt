@@ -20,3 +20,4 @@ include_directories(
 # include(AddClang)
 
 add_subdirectory(emi)
+add_subdirectory(diff)

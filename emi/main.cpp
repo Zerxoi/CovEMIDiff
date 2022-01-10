@@ -1,7 +1,7 @@
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/Tooling/Tooling.h"
 
-#include "EMINewFrontendActionFactory.h"
+#include "EMIFrontendActionFactory.h"
 #include "EMIFrontendAction.h"
 
 static llvm::cl::OptionCategory EMIOptionCategory("EMI Options");
@@ -17,6 +17,6 @@ int main(int argc, const char *argv[])
 
     // ClangTool::run accepts a FrontendActionFactory, which is then used to
     // create new objects implementing the FrontendAction interface.
-    Tool.run(EMINewFrontendActionFactory<GCovFrontendAction>(MethodOption, OutputOption).get());
-    Tool.run(EMINewFrontendActionFactory<LLVMCovFrontendAction>(MethodOption, OutputOption).get());
+    Tool.run(newEMIFrontendActionFactory<GCovFrontendAction>(MethodOption, OutputOption).get());
+    Tool.run(newEMIFrontendActionFactory<LLVMCovFrontendAction>(MethodOption, OutputOption).get());
 }
