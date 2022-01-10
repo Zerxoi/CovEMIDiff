@@ -1,6 +1,6 @@
 #include "DiffASTConsumer.h"
 
-DiffASTConsumer::DiffASTConsumer(const clang::ASTContext *Context, const std::string &Filename, const std::vector<int> &Lines)
+DiffASTConsumer::DiffASTConsumer(clang::ASTContext *Context, const std::string &Filename, const std::vector<int> &Lines)
     : Context(Context), Visitor(Context, Lines), Filename(Filename){};
 
 bool DiffASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef D)
