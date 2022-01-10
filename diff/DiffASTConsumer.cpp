@@ -1,9 +1,18 @@
 #include "DiffASTConsumer.h"
 
-DiffASTConsumer::DiffASTConsumer(clang::ASTContext *Context)
-    : Visitor(Context){};
+DiffASTConsumer::DiffASTConsumer(const clang::ASTContext *Context, const std::string &Filename, const std::vector<int> &Lines)
+    : Context(Context), Visitor(Context, Lines), Filename(Filename){};
 
-void DiffASTConsumer::HandleTranslationUnit(clang::ASTContext &Context)
+bool DiffASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef D)
 {
-    Visitor.TraverseDecl(Context.getTranslationUnitDecl());
-};
+    const clang::SourceManager &srcMgr = Context->getSourceManager();
+    for (auto b = D.begin(), e = D.end(); b != e; b++)
+    {
+        std::string filename = srcMgr.getFilename((*b)->getLocation());
+        if (srcMgr.getFilename((*b)->getLocation()).equals(Filename))
+        {
+            Visitor.TraverseDecl(*b);
+        }
+    }
+    return true;
+}
