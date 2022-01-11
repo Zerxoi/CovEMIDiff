@@ -13,6 +13,8 @@ bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR)
         {
             continue;
         }
+        // Manually set the ASTContext parsing scope so that getParents() can successfully get the parent statement
+        Context.setTraversalScope({*b});
         // Traverse the declaration using our AST visitor.
         Visitor->TraverseDecl(*b);
     }

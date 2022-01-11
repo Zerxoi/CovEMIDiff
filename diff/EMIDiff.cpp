@@ -14,7 +14,7 @@ bool isEmptyLine(const std::string &line)
     int i = 0;
     for (; i < line.size() && std::isspace(line[i]); i++)
         ;
-    if (i == line.size() || line[i] == '{' || line[i] == '}')
+    if (i == line.size() || line[i] == '{' || line[i] == '}' || line[i] == ';' || line.find("else") != std::string::npos)
     {
         return true;
     }

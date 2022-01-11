@@ -11,5 +11,5 @@ public:
 private:
     clang::ASTContext *Context;
     const std::vector<int> &Lines;
-    int Index;
+    int Index = 0;
 };

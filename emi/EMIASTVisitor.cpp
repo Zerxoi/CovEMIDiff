@@ -66,51 +66,111 @@ bool PostASTVisitor::shouldTraversePostOrder() const
 {
     return true;
 }
+// Determine whether a statement can be deleted
+// 5 types of statements that can be deleted:
+//      1. Statement in IfStmt that is not conditions and is not CompoundStmt
+//      2. Statement in ForStmt that is not conditions and is not CompoundStmt
+//      3. Statement in WhileStmt that is not conditions and is not CompoundStmt
+//      4. Statement in Label that  is not CompoundStmt
+//      5. Statement in CompoundStmt that is not CompoundStmt
+bool isDeletableStmt(const clang::Stmt *stmt, const clang::Stmt *parent)
+{
+    if (stmt == nullptr || parent == nullptr || clang::isa<clang::CompoundStmt>(stmt))
+    {
+        return false;
+    }
+    // stmt->dumpColor();
+    if (clang::isa<clang::IfStmt>(parent))
+    {
+        auto ifParent = clang::cast<clang::IfStmt>(parent);
+        if (stmt == ifParent->getThen() || stmt == ifParent->getElse())
+        {
+            return true;
+        }
+        return false;
+    }
+    if (clang::isa<clang::ForStmt>(parent))
+    {
+        auto forParent = clang::cast<clang::ForStmt>(parent);
+        if (stmt == forParent->getBody())
+        {
+            return true;
+        }
+        return false;
+    }
+    if (clang::isa<clang::WhileStmt>(parent))
+    {
+        auto whileParent = clang::cast<clang::WhileStmt>(parent);
+        if (stmt == whileParent->getBody())
+        {
+            return true;
+        }
+        return false;
+    }
+    if (clang::isa<clang::CompoundStmt>(parent) || clang::isa<clang::LabelStmt>(parent))
+    {
+        return true;
+    }
+    return false;
+}
+
+// Determine whether a statement can be deleted according to its child statement, the statement
+// can be deleted if there is no executed statement in the child statement
+bool shouldDeleteStmt(clang::Stmt *stmt, clang::ASTContext &Context, const std::set<int> *Unexecuted, const std::string &Extension)
+{
+    for (auto child : stmt->children())
+    {
+        // child->dumpColor();
+        // If the child statement is a deleteable statement, it is judged directly according to whether
+        // it is executed or not.
+        if (isDeletableStmt(child, stmt))
+        {
+            int line = Context.getSourceManager().getSpellingLineNumber(child->getBeginLoc());
+            if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(child)))
+            {
+                return false;
+            }
+        }
+        // If the child statement is CompoundStmt, it should be deleted as long as there are no executed statements
+        // in the CompoundStmt's child statement
+        if (child != nullptr && clang::isa<clang::CompoundStmt>(child))
+        {
+            for (auto grandchild : child->children())
+            {
+                int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
+                // In addition to unexecuted statements should be deleted, DeclStatements that are not marked
+                // in the .gcov file should also be deleted
+                // !(Unexecuted->count(line) || (Extension.compare(".gcov") == 0 && clang::isa<clang::DeclStmt>(grandchild))
+                if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(grandchild)))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 bool PostASTVisitor::VisitStmt(clang::Stmt *s)
 {
-    clang::SourceRange range = s->getSourceRange();
-    clang::SourceManager &srcMgr = Context.getSourceManager();
-    int beginLine = srcMgr.getSpellingLineNumber(range.getBegin());
+    auto scope = Context.getTraversalScope();
+    int beginLine = Context.getSourceManager().getSpellingLineNumber(s->getBeginLoc());
     if (Unexecuted->count(beginLine) && !clang::isa<clang::CompoundStmt>(s))
     {
         auto parents = Context.getParents(*s);
         if (!parents.empty())
         {
             auto parentStmt = parents.begin()->get<clang::Stmt>();
-            // Because the expression is a statement subclass, if the unexecuted statement has a 
-            // sub-statement executed, then the statement should not be deleted, but the expression
+            // Because the expression is a statement subclass, if the unexecuted statement has a
+            // child statement executed, then the statement should not be deleted, but the expression
             // in the statement may still be deleted. Therefore, this problem can be avoided if
-            // only the direct sub-statement of the compound statement can be deleted
-            if (parentStmt != nullptr && clang::isa<clang::CompoundStmt>(parentStmt))
+            // only the direct child statement of the compound statement can be deleted
+            if (isDeletableStmt(s, parentStmt) && shouldDeleteStmt(s, Context, Unexecuted, Extension))
             {
-                bool shouldDelete = true;
-                // If there are unexecuted statements in the sub-statements of the statement,
-                // it should not be deleted
-                for (auto &child : s->children())
-                {
-                    if (child != nullptr && clang::isa<clang::CompoundStmt>(child))
-                    {
-                        for (auto &grandchild : child->children())
-                        {
-                            int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
-                            // In addition to unexecuted statements should be deleted, DeclStatements that are not marked
-                            // in the .gcov file should also be deleted
-                            // !(Unexecuted->count(line) || (Extension.compare(".gcov") == 0 && clang::isa<clang::DeclStmt>(grandchild))
-                            if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(grandchild)))
-                            {
-                                shouldDelete = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (shouldDelete)
-                {
-                    // s->dumpColor();
-                    // llvm::outs() << "BeginLine: " << beginLine << "\n";
-                    TheRewriter.RemoveText(s->getSourceRange());
-                }
+                // s->dumpColor();
+                // llvm::outs() << "BeginLine: " << beginLine << "\n";
+                TheRewriter.RemoveText(s->getSourceRange());
             }
         }
     }
