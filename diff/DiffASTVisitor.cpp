@@ -1,38 +1,31 @@
 #include "DiffASTVisitor.h"
 
-DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines)
-    : Context(Context), Lines(Lines){};
-
-bool isUnmarkedLabel(const clang::Stmt *s, clang::ASTContext *Context)
-{
-    llvm::outs() << Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()) << "\n";
-    if (clang::isa<clang::LabelStmt>(s))
-    {
-        return true;
-    }
-    auto parents = Context->getParents(*s);
-    while (!parents.empty())
-    {
-        const clang::Stmt *parentStmt = parents.begin()->get<clang::Stmt>();
-        if (clang::isa<clang::LabelStmt>(*parentStmt))
-        {
-            return true;
-        }
-        parents = Context->getParents(*parentStmt);
-    }
-    return false;
-}
+DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const int CoverageToolId, const std::vector<DiffParser *> *DiffParserVector)
+    : Context(Context), Lines(Lines), CoverageToolId(CoverageToolId), DiffParserVector(DiffParserVector){};
 
 bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
 {
     if (Index < Lines.size() && Lines[Index] == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
     {
-        if (isUnmarkedLabel(s, Context))
+        bool parsed = false;
+        for (auto diffParser : *DiffParserVector)
         {
-            llvm::outs() << Lines[Index] << ":"
-                         << "Unmarked Label"
-                         << "\n";
+            if (diffParser->getFileTypeId() == CoverageToolId && diffParser->parse(s, Context))
+            {
+                llvm::outs() << "[" << diffParser->getCoverageTool() << "] "
+                             << diffParser->getDescription() << " (" << diffParser->getFileType() << "@" << Lines[Index] << ")"
+                             << "\n";
+                parsed = true;
+                break;
+            }
         }
+        // if (!clang::isa<clang::DeclStmt>(s))
+        // {
+        //     // Write to file
+        //     llvm::outs() << "Delete Decl Stmt"
+        //                  << " (" << (CoverageToolId == 0 ? "gcov" : "llvm-cov") << "@" << Lines[Index] << ")"
+        //                  << "\n";
+        // }
         Index++;
     }
     return true;

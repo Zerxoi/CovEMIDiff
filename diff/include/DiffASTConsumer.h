@@ -7,11 +7,11 @@
 class DiffASTConsumer : public clang::ASTConsumer
 {
 public:
-    explicit DiffASTConsumer(clang::ASTContext *Context, const std::string &Filename, const std::vector<int> &Lines);
+    explicit DiffASTConsumer(clang::ASTContext *Context, const std::vector<int> &Lines, const int CoverageToolId, const std::string &Filename, const std::vector<DiffParser *> *DiffParserVector);
     virtual bool HandleTopLevelDecl(clang::DeclGroupRef D) override;
 
 private:
     clang::ASTContext *Context;
     DiffASTVisitor Visitor;
-    std::string Filename;
+    const std::string Filename;
 };

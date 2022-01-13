@@ -20,11 +20,12 @@ DiffFrontendActionFactory::DiffFrontendActionFactory(const std::string &gcovFile
     {
         DirPath /= std::filesystem::current_path();
     }
+    DiffParserVector = createDiffParserVector();
 }
 
 std::unique_ptr<clang::FrontendAction> DiffFrontendActionFactory::create()
 {
-    return std::make_unique<DiffFrontendAction>(gcovLines, llvmcovLines, DirPath);
+    return std::make_unique<DiffFrontendAction>(gcovLines, llvmcovLines, DirPath, DiffParserVector);
 }
 
 std::unique_ptr<clang::tooling::FrontendActionFactory> newDiffFrontendActionFactory(const std::string &gcovFile, const std::string &llvmcovFile, const std::string &DirOption)
