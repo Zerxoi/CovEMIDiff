@@ -30,6 +30,11 @@ const std::string &DiffParser::getDescription()
     return Description;
 }
 
+int DiffParser::getCount()
+{
+    return Count;
+}
+
 UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(0, 1, "Unmarked Label"){};
 
 bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
@@ -37,7 +42,10 @@ bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Con
     if (clang::isa<clang::LabelStmt>(s))
     {
         if (!util::isAncestorRelation(s, UnmarkedLabelStmt))
+        {
             UnmarkedLabelStmt = s;
+            Count++;
+        }
         return true;
     }
     if (util::isAncestorRelation(s, UnmarkedLabelStmt))
@@ -59,6 +67,7 @@ bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTC
             {
                 if (varDecl->hasInit() && clang::isa<clang::ConstantArrayType>(varDecl->getType()) && varDecl->getType().isConstQualified())
                 {
+                    Count++;
                     return true;
                 }
             }
@@ -92,7 +101,10 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
         if (isEvaluatable(ifStmt->getCond(), *Context))
         {
             if (!util::isAncestorRelation(s, IfOptimizeStmt))
+            {
                 IfOptimizeStmt = s;
+                Count++;
+            }
             return true;
         }
     }
@@ -107,8 +119,12 @@ JumpBlockDiffParser::JumpBlockDiffParser() : PreBlockJumpStmt(nullptr), DiffPars
 
 bool JumpBlockDiffParser::isBlockJumpStmt(const clang::Stmt *s)
 {
-    if (s != nullptr && (clang::isa<clang::ReturnStmt>(s) || clang::isa<clang::BreakStmt>(s) || clang::isa<clang::ContinueStmt>(s) || s == PreBlockJumpStmt))
+    if (s != nullptr && (clang::isa<clang::ReturnStmt>(s) || clang::isa<clang::BreakStmt>(s) || clang::isa<clang::ContinueStmt>(s)))
     {
+        if (s != PreBlockJumpStmt)
+        {
+            Count++;
+        }
         return true;
     }
     return false;

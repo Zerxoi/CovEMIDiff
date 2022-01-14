@@ -55,6 +55,20 @@ void DiffFrontendAction::EndSourceFileAction()
             ofs << reason->getDescription() << "@" << reason->getFileType() << ":" << reason->getLineNum() << "\n";
         }
     }
+    ofs << "=================================== Diff Report ===================================\n";
+    int total = 0;
+    for (const auto &parser : *DiffParserVector)
+    {
+        if (parser->getCoverageToolId() == CoverageToolId)
+        {
+            int count = parser->getCount();
+            total += count;
+            ofs << parser->getDescription() << "Count:" << count << "\n";
+        }
+    }
+    ofs << "\n";
+    ofs << "Total:" << total << "\n";
+
     ofs.close();
     llvm::outs() << coverageTool << " diff reason location: " << path << "\n";
 }

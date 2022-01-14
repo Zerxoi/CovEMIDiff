@@ -13,11 +13,15 @@ public:
     int getCoverageToolId();
     std::string getCoverageTool();
     const std::string &getDescription();
+    int getCount();
 
 private:
     int CoverageToolId;
     int FileTypeId;
     std::string Description;
+
+protected:
+    int Count = 0;
 };
 
 class UnmarkedLabelDiffParser : public DiffParser
