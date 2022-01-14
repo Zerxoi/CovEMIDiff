@@ -25,6 +25,9 @@ class UnmarkedLabelDiffParser : public DiffParser
 public:
     explicit UnmarkedLabelDiffParser();
     virtual bool parse(const clang::Stmt *s, clang::ASTContext *Context) override;
+
+private:
+    const clang::Stmt *UnmarkedLabelStmt;
 };
 
 class ConstArrayInitializationDiffParser : public DiffParser
@@ -41,6 +44,9 @@ public:
     virtual bool parse(const clang::Stmt *s, clang::ASTContext *Context) override;
     // Wraps the clang::Expr's isEvaluatable method
     bool isEvaluatable(const clang::Expr *expr, const clang::ASTContext &Context);
+
+private:
+    const clang::Stmt *IfOptimizeStmt;
 };
 
 class JumpBlockDiffParser : public DiffParser

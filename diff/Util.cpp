@@ -1,3 +1,4 @@
+#include <queue>
 #include "Util.h"
 
 const clang::Stmt *getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext *Context)
@@ -44,4 +45,29 @@ const clang::Stmt *getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext
         return *current;
     }
     return nullptr;
+}
+
+bool isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancestor)
+{
+    if (descendant == nullptr || ancestor == nullptr)
+    {
+        return false;
+    }
+    std::queue<const clang::Stmt *> queue;
+    queue.push(ancestor);
+    while (!queue.empty())
+    {
+        auto stmt = queue.front();
+        if (stmt == descendant)
+        {
+            return true;
+        }
+        if (stmt != nullptr)
+            for (auto child : stmt->children())
+            {
+                queue.push(child);
+            }
+        queue.pop();
+    }
+    return false;
 }

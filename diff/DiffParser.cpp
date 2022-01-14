@@ -46,27 +46,20 @@ const std::string &DiffParser::getDescription()
     return Description;
 }
 
-UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : DiffParser(0, 1, "Unmarked Label"){};
+UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(0, 1, "Unmarked Label"){};
 
 bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
-    const clang::Stmt *stmt = s;
-    do
+    if (clang::isa<clang::LabelStmt>(s))
     {
-        if (clang::isa<clang::LabelStmt>(stmt))
-        {
-            return true;
-        }
-        auto parents = Context->getParents(*stmt);
-        if (parents.empty())
-        {
-            stmt = nullptr;
-        }
-        else
-        {
-            stmt = parents.begin()->get<clang::Stmt>();
-        }
-    } while (stmt);
+        if (!isAncestorRelation(s, UnmarkedLabelStmt))
+            UnmarkedLabelStmt = s;
+        return true;
+    }
+    if (isAncestorRelation(s, UnmarkedLabelStmt))
+    {
+        return true;
+    }
     return false;
 }
 
@@ -80,7 +73,7 @@ bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTC
         {
             if (auto *varDecl = clang::dyn_cast<clang::VarDecl>(decl))
             {
-                if (clang::isa<clang::ConstantArrayType>(varDecl->getType()))
+                if (varDecl->hasInit() && clang::isa<clang::ConstantArrayType>(varDecl->getType()) && varDecl->getType().isConstQualified())
                 {
                     return true;
                 }
@@ -90,7 +83,7 @@ bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTC
     return false;
 }
 
-IfOptimizeDiffParser::IfOptimizeDiffParser() : DiffParser(0, 0, "If Optimize") {}
+IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffParser(0, 0, "If Optimize") {}
 
 bool IfOptimizeDiffParser::isEvaluatable(const clang::Expr *expr, const clang::ASTContext &Context)
 {
@@ -110,26 +103,19 @@ bool IfOptimizeDiffParser::isEvaluatable(const clang::Expr *expr, const clang::A
 
 bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
-    const clang::Stmt *stmt = s;
-    do
+    if (auto ifStmt = clang::dyn_cast<clang::IfStmt>(s))
     {
-        if (auto ifStmt = clang::dyn_cast<clang::IfStmt>(stmt))
+        if (isEvaluatable(ifStmt->getCond(), *Context))
         {
-            if (isEvaluatable(ifStmt->getCond(), *Context))
-            {
-                return true;
-            }
+            if (!isAncestorRelation(s, IfOptimizeStmt))
+                IfOptimizeStmt = s;
+            return true;
         }
-        auto parents = Context->getParents(*stmt);
-        if (parents.empty())
-        {
-            stmt = nullptr;
-        }
-        else
-        {
-            stmt = parents.begin()->get<clang::Stmt>();
-        }
-    } while (stmt);
+    }
+    if (isAncestorRelation(s, IfOptimizeStmt))
+    {
+        return true;
+    }
     return false;
 }
 
@@ -212,10 +198,10 @@ bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context
 const std::vector<DiffParser *> *createDiffParserVector()
 {
     std::vector<DiffParser *> *vector = new std::vector<DiffParser *>;
-    vector->push_back(new ConstArrayInitializationDiffParser);
     vector->push_back(new IfOptimizeDiffParser);
-    vector->push_back(new JumpBlockDiffParser);
     vector->push_back(new UnmarkedLabelDiffParser);
+    vector->push_back(new ConstArrayInitializationDiffParser);
+    vector->push_back(new JumpBlockDiffParser);
 
     return vector;
 }
