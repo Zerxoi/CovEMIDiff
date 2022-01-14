@@ -6,6 +6,7 @@ add_executable(diff
   main.cpp
   EMIDiff.cpp
   DiffParser.cpp
+  DiffReason.cpp
   DiffFrontendActionFactory.cpp
   DiffFrontendAction.cpp
   DiffASTConsumer.cpp

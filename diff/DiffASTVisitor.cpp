@@ -1,31 +1,21 @@
+#include "DiffReason.h"
 #include "DiffASTVisitor.h"
 
-DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const int CoverageToolId, const std::vector<DiffParser *> *DiffParserVector)
-    : Context(Context), Lines(Lines), CoverageToolId(CoverageToolId), DiffParserVector(DiffParserVector){};
+DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const int Id, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
+    : Context(Context), Lines(Lines), CoverageToolId(Id), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};
 
 bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
 {
     if (Index < Lines.size() && Lines[Index] == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
     {
-        bool parsed = false;
         for (auto diffParser : *DiffParserVector)
         {
             if (diffParser->getFileTypeId() == CoverageToolId && diffParser->parse(s, Context))
             {
-                llvm::outs() << "[" << diffParser->getCoverageTool() << "] "
-                             << diffParser->getDescription() << " (" << diffParser->getFileType() << "@" << Lines[Index] << ")"
-                             << "\n";
-                parsed = true;
+                DiffReasonVector.push_back(new DiffReason(Lines[Index], diffParser->getCoverageToolId(), diffParser->getFileTypeId(), diffParser->getDescription()));
                 break;
             }
         }
-        // if (!clang::isa<clang::DeclStmt>(s))
-        // {
-        //     // Write to file
-        //     llvm::outs() << "Delete Decl Stmt"
-        //                  << " (" << (CoverageToolId == 0 ? "gcov" : "llvm-cov") << "@" << Lines[Index] << ")"
-        //                  << "\n";
-        // }
         Index++;
     }
     return true;

@@ -12,15 +12,7 @@ int DiffParser::getFileTypeId()
 
 std::string DiffParser::getFileType()
 {
-    if (FileTypeId == 0)
-    {
-        return "gcov";
-    }
-    else if (FileTypeId == 1)
-    {
-        return "llvm-cov";
-    }
-    return "";
+    return util::idToString(FileTypeId);
 }
 
 int DiffParser::getCoverageToolId()
@@ -30,15 +22,7 @@ int DiffParser::getCoverageToolId()
 
 std::string DiffParser::getCoverageTool()
 {
-    if (CoverageToolId == 0)
-    {
-        return "gcov";
-    }
-    else if (CoverageToolId == 1)
-    {
-        return "llvm-cov";
-    }
-    return "";
+    return util::idToString(CoverageToolId);
 }
 
 const std::string &DiffParser::getDescription()
@@ -52,11 +36,11 @@ bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Con
 {
     if (clang::isa<clang::LabelStmt>(s))
     {
-        if (!isAncestorRelation(s, UnmarkedLabelStmt))
+        if (!util::isAncestorRelation(s, UnmarkedLabelStmt))
             UnmarkedLabelStmt = s;
         return true;
     }
-    if (isAncestorRelation(s, UnmarkedLabelStmt))
+    if (util::isAncestorRelation(s, UnmarkedLabelStmt))
     {
         return true;
     }
@@ -107,12 +91,12 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
     {
         if (isEvaluatable(ifStmt->getCond(), *Context))
         {
-            if (!isAncestorRelation(s, IfOptimizeStmt))
+            if (!util::isAncestorRelation(s, IfOptimizeStmt))
                 IfOptimizeStmt = s;
             return true;
         }
     }
-    if (isAncestorRelation(s, IfOptimizeStmt))
+    if (util::isAncestorRelation(s, IfOptimizeStmt))
     {
         return true;
     }
@@ -185,7 +169,7 @@ bool JumpBlockDiffParser::containsBlockJumpStmt(const clang::Stmt *s)
 
 bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
-    auto preStmt = getSiblingStmt(s, -1, Context);
+    auto preStmt = util::getSiblingStmt(s, -1, Context);
     if (containsBlockJumpStmt(preStmt))
     {
         PreBlockJumpStmt = s;

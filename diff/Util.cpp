@@ -1,7 +1,7 @@
 #include <queue>
 #include "Util.h"
 
-const clang::Stmt *getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext *Context)
+const clang::Stmt *util::getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext *Context)
 {
     if (n == 0)
     {
@@ -47,7 +47,7 @@ const clang::Stmt *getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext
     return nullptr;
 }
 
-bool isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancestor)
+bool util::isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancestor)
 {
     if (descendant == nullptr || ancestor == nullptr)
     {
@@ -70,4 +70,14 @@ bool isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancest
         queue.pop();
     }
     return false;
+}
+
+std::string util::idToString(int id)
+{
+    if (id == 0)
+        return "gcov";
+    else if (id == 1)
+        return "llvm-cov";
+    else
+        return "";
 }
