@@ -52,7 +52,7 @@ void DiffFrontendAction::EndSourceFileAction()
     {
         if (reason->getCoverageToolId() == CoverageToolId)
         {
-            ofs << reason->getDescription() << "@" << reason->getFileType() << ":" << reason->getLineNum() << "\n";
+            ofs << reason->getDescription() << "#" << reason->getCount() << "@" << reason->getFileType() << ":" << reason->getLineNum() << "\n";
         }
     }
     ofs << "=================================== Diff Report ===================================\n";
@@ -63,7 +63,7 @@ void DiffFrontendAction::EndSourceFileAction()
         {
             int count = parser->getCount();
             total += count;
-            ofs << parser->getDescription() << "Count:" << count << "\n";
+            ofs << parser->getDescription() << "'s Count:" << count << "\n";
         }
     }
     ofs << "\n";

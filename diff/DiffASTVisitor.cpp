@@ -12,7 +12,7 @@ bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
         {
             if (diffParser->getFileTypeId() == CoverageToolId && diffParser->parse(s, Context))
             {
-                DiffReasonVector.push_back(new DiffReason(Lines[Index], diffParser->getCoverageToolId(), diffParser->getFileTypeId(), diffParser->getDescription()));
+                DiffReasonVector.push_back(new DiffReason(Lines[Index], diffParser->getCoverageToolId(), diffParser->getFileTypeId(), diffParser->getDescription(), diffParser->getCount()));
                 break;
             }
         }

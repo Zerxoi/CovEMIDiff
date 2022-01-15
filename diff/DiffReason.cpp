@@ -1,8 +1,8 @@
 #include "Util.h"
 #include "DiffReason.h"
 
-DiffReason::DiffReason(int LineNum, int CoverageToolId, int FileTypeId, const std::string &Description)
-    : LineNum(LineNum), CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description) {}
+DiffReason::DiffReason(int LineNum, int CoverageToolId, int FileTypeId, const std::string &Description, int Count)
+    : LineNum(LineNum), CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description), Count(Count) {}
 
 int DiffReason::getLineNum() { return LineNum; }
 
@@ -15,3 +15,5 @@ int DiffReason::getFileTypeId() { return FileTypeId; }
 const std::string DiffReason::getFileType() { return util::idToString(FileTypeId); }
 
 const std::string &DiffReason::getDescription() { return Description; }
+
+int DiffReason::getCount() { return Count; }
