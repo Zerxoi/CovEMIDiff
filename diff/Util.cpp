@@ -47,26 +47,28 @@ const clang::Stmt *util::getSiblingStmt(const clang::Stmt *s, int n, clang::ASTC
     return nullptr;
 }
 
-bool util::isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancestor)
+bool util::bfs(const clang::Stmt *root, std::function<bool(const clang::Stmt *)> find)
 {
-    if (descendant == nullptr || ancestor == nullptr)
+    if (root == nullptr)
     {
         return false;
     }
     std::queue<const clang::Stmt *> queue;
-    queue.push(ancestor);
+    queue.push(root);
     while (!queue.empty())
     {
         auto stmt = queue.front();
-        if (stmt == descendant)
+        if (find(stmt))
         {
             return true;
         }
         if (stmt != nullptr)
+        {
             for (auto child : stmt->children())
             {
                 queue.push(child);
             }
+        }
         queue.pop();
     }
     return false;

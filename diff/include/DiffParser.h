@@ -58,11 +58,9 @@ class JumpBlockDiffParser : public DiffParser
 public:
     explicit JumpBlockDiffParser();
     virtual bool parse(const clang::Stmt *s, clang::ASTContext *Context) override;
-    bool containsBlockJumpStmt(const clang::Stmt *s);
-    bool isBlockJumpStmt(const clang::Stmt *s);
 
 private:
-    const clang::Stmt *PreBlockJumpStmt;
+    const clang::Stmt *PreJumpBlockStmt;
 };
 
 const std::vector<DiffParser *> *createDiffParserVector();

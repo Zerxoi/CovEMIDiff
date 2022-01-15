@@ -6,7 +6,7 @@ namespace util
 {
     const clang::Stmt *getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext *Context);
 
-    bool isAncestorRelation(const clang::Stmt *descendant, const clang::Stmt *ancestor);
+    bool bfs(const clang::Stmt *root, std::function<bool(const clang::Stmt *)> find);
 
     std::string idToString(int id);
 }

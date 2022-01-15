@@ -41,14 +41,16 @@ bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Con
 {
     if (clang::isa<clang::LabelStmt>(s))
     {
-        if (!util::isAncestorRelation(s, UnmarkedLabelStmt))
+        if (!util::bfs(UnmarkedLabelStmt, [s](auto child)
+                       { return child == s; }))
         {
             UnmarkedLabelStmt = s;
             Count++;
         }
         return true;
     }
-    if (util::isAncestorRelation(s, UnmarkedLabelStmt))
+    if (util::bfs(UnmarkedLabelStmt, [s](auto child)
+                  { return child == s; }))
     {
         return true;
     }
@@ -100,7 +102,8 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
     {
         if (isEvaluatable(ifStmt->getCond(), *Context))
         {
-            if (!util::isAncestorRelation(s, IfOptimizeStmt))
+            if (!util::bfs(IfOptimizeStmt, [s](auto child)
+                           { return child == s; }))
             {
                 IfOptimizeStmt = s;
                 Count++;
@@ -108,91 +111,33 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
             return true;
         }
     }
-    if (util::isAncestorRelation(s, IfOptimizeStmt))
+    if (util::bfs(IfOptimizeStmt, [s](auto child)
+                  { return child == s; }))
     {
         return true;
     }
     return false;
 }
 
-JumpBlockDiffParser::JumpBlockDiffParser() : PreBlockJumpStmt(nullptr), DiffParser(1, 1, "Jump Block") {}
-
-bool JumpBlockDiffParser::isBlockJumpStmt(const clang::Stmt *s)
-{
-    if (s != nullptr && (clang::isa<clang::ReturnStmt>(s) || clang::isa<clang::BreakStmt>(s) || clang::isa<clang::ContinueStmt>(s)))
-    {
-        if (s != PreBlockJumpStmt)
-        {
-            Count++;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool JumpBlockDiffParser::containsBlockJumpStmt(const clang::Stmt *s)
-{
-    if (auto ifStmt = clang::dyn_cast<clang::IfStmt>(s))
-    {
-        auto thenStmt = ifStmt->getThen();
-        auto elseStmt = ifStmt->getElse();
-        if (isBlockJumpStmt(thenStmt) || isBlockJumpStmt(elseStmt))
-        {
-            return true;
-        }
-        else if (auto thenCompoudStmt = clang::dyn_cast<clang::CompoundStmt>(thenStmt))
-        {
-            for (auto stmt : thenCompoudStmt->children())
-            {
-                if (containsBlockJumpStmt(stmt))
-                {
-                    return true;
-                }
-            }
-        }
-        else if (elseStmt != nullptr)
-        {
-            if (auto elseCompoudStmt = clang::dyn_cast<clang::CompoundStmt>(elseStmt))
-                for (auto stmt : elseCompoudStmt->children())
-                {
-                    if (containsBlockJumpStmt(stmt))
-                    {
-                        return true;
-                    }
-                }
-        }
-    }
-    else if (auto forStmt = clang::dyn_cast<clang::ForStmt>(s))
-    {
-        auto bodyStmt = forStmt->getBody();
-        if (isBlockJumpStmt(bodyStmt))
-        {
-            return true;
-        }
-        else if (auto bodyCompoundStmt = clang::dyn_cast<clang::CompoundStmt>(bodyStmt))
-        {
-            for (auto stmt : bodyCompoundStmt->children())
-            {
-                if (containsBlockJumpStmt(stmt))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-    return isBlockJumpStmt(s);
-}
+JumpBlockDiffParser::JumpBlockDiffParser() : PreJumpBlockStmt(nullptr), DiffParser(1, 1, "Jump Block") {}
 
 bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
     auto preStmt = util::getSiblingStmt(s, -1, Context);
-    if (containsBlockJumpStmt(preStmt))
+    if (PreJumpBlockStmt != nullptr && util::bfs(preStmt, [this](const clang::Stmt *child)
+                                                 { return child == PreJumpBlockStmt; }))
     {
-        PreBlockJumpStmt = s;
+        PreJumpBlockStmt = s;
         return true;
     }
-    else
-        return false;
+    if (util::bfs(preStmt, [](const clang::Stmt *child)
+                  { return child != nullptr && (clang::isa<clang::ReturnStmt>(child) || clang::isa<clang::BreakStmt>(child) || clang::isa<clang::ContinueStmt>(child)); }))
+    {
+        Count++;
+        PreJumpBlockStmt = s;
+        return true;
+    }
+    return false;
 }
 
 const std::vector<DiffParser *> *createDiffParserVector()
