@@ -16,8 +16,8 @@ public:
     int getCount();
 
 private:
-    int CoverageToolId;
-    int FileTypeId;
+    int CoverageToolId; // Diff bug is at that coverage tool's ID
+    int FileTypeId;     // In which coverage tool's EMI file type can the Diff bug be found
     std::string Description;
 
 protected:

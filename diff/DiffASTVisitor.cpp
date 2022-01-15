@@ -1,8 +1,8 @@
 #include "DiffReason.h"
 #include "DiffASTVisitor.h"
 
-DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const int Id, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
-    : Context(Context), Lines(Lines), CoverageToolId(Id), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};
+DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, int &Index, const int Id, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
+    : Context(Context), Lines(Lines), Index(Index), CoverageToolId(Id), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};
 
 bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
 {
