@@ -2,6 +2,7 @@
 
 #include <string>
 
+// The class that stores the cause of the Diff
 class DiffReason
 {
 public:
@@ -16,8 +17,8 @@ public:
 
 private:
     int LineNum;
-    int CoverageToolId;
-    int FileTypeId;
+    int CoverageToolId; // Diff bug is at that coverage tool's ID
+    int FileTypeId;     // In which coverage tool's EMI file type can the Diff bug be found
     const std::string &Description;
     int Count;
 };

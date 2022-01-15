@@ -3,6 +3,7 @@
 #include "clang/AST/Stmt.h"
 #include "clang/AST/ASTContext.h"
 
+// Parse the AST tree of inconsistent lines in the file and determine whether it is caused by a specific Diff Bug
 class DiffParser
 {
 public:
