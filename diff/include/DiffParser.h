@@ -9,17 +9,15 @@ class DiffParser
 public:
     DiffParser(int CoverageToolId, int FileTypeId, std::string Description);
     virtual bool parse(const clang::Stmt *s, clang::ASTContext *Context) = 0;
-    int getFileTypeId();
-    std::string getFileType();
-    int getCoverageToolId();
-    std::string getCoverageTool();
-    const std::string &getDescription();
-    int getCount();
+    const int getFileTypeId() const;
+    const int getCoverageToolId() const;
+    const std::string &getDescription() const;
+    const int getCount() const;
 
 private:
-    int CoverageToolId; // Diff bug is at that coverage tool's ID
-    int FileTypeId;     // In which coverage tool's EMI file type can the Diff bug be found
-    std::string Description;
+    const int CoverageToolId; // Diff bug is at that coverage tool's ID
+    const int FileTypeId;     // In which coverage tool's EMI file type can the Diff bug be found
+    const std::string Description;
 
 protected:
     int Count = 0;

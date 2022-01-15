@@ -1,19 +1,16 @@
 #include "Util.h"
 #include "DiffReason.h"
 
-DiffReason::DiffReason(int LineNum, int CoverageToolId, int FileTypeId, const std::string &Description, int Count)
-    : LineNum(LineNum), CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description), Count(Count) {}
+DiffReason::DiffReason(int LineNum, const std::string &Description)
+    : LineNum(LineNum), Description(Description), Parser(nullptr), Count(0){};
 
-int DiffReason::getLineNum() { return LineNum; }
+DiffReason::DiffReason(int LineNum, const DiffParser *Parser, int Count)
+    : LineNum(LineNum), Description(Parser->getDescription()), Parser(Parser), Count(Count){};
 
-int DiffReason::getCoverageToolId() { return CoverageToolId; }
+const int DiffReason::getLineNum() const { return LineNum; }
 
-const std::string DiffReason::getCoverageTool() { return util::idToString(CoverageToolId); }
+const std::string &DiffReason::getDescription() const { return Description; }
 
-int DiffReason::getFileTypeId() { return FileTypeId; }
+const DiffParser *const DiffReason::getParser() const { return Parser; }
 
-const std::string DiffReason::getFileType() { return util::idToString(FileTypeId); }
-
-const std::string &DiffReason::getDescription() { return Description; }
-
-int DiffReason::getCount() { return Count; }
+const int DiffReason::getCount() const { return Count; }

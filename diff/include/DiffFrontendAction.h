@@ -16,9 +16,7 @@ public:
 
 private:
     const std::vector<int> &gcovLines;
-    int gcovIndex = 0;
     const std::vector<int> &llvmcovLines;
-    int llvmcovIndex = 0;
     const std::filesystem::path &DirPath;
     int CoverageToolId;
     const std::vector<DiffParser *> *DiffParserVector;

@@ -1,7 +1,7 @@
 #include "DiffASTConsumer.h"
 
-DiffASTConsumer::DiffASTConsumer(clang::ASTContext *Context, const std::vector<int> &Lines, int &Index, const int CoverageToolId, const std::string &Filename, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
-    : Context(Context), Visitor(Context, Lines, Index, CoverageToolId, DiffParserVector, DiffReasonVector), Filename(Filename){};
+DiffASTConsumer::DiffASTConsumer(clang::ASTContext *Context, const std::vector<int> &Lines, const int CoverageToolId, const std::string &Filename, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
+    : Context(Context), Visitor(Context, Lines, CoverageToolId, DiffParserVector, DiffReasonVector), Filename(Filename){};
 
 bool DiffASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef D)
 {
