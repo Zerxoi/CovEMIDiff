@@ -11,6 +11,6 @@ const int DiffReason::getLineNum() const { return LineNum; }
 
 const std::string &DiffReason::getDescription() const { return Description; }
 
-const DiffParser *const DiffReason::getParser() const { return Parser; }
+const DiffParser *DiffReason::getParser() const { return Parser; }
 
 const int DiffReason::getCount() const { return Count; }

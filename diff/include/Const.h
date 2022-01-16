@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Enum.h"
+
 namespace reason
 {
     namespace description
@@ -20,23 +22,23 @@ namespace parser
 {
     namespace ifOptimize
     {
-        static const int coverageToolId = 0;
-        static const int fileTypeId = 0;
+        static const enum coverageTool coverageToolId = gcov;
+        static const enum coverageTool fileTypeId = gcov;
     }
 
     namespace unmarkedLabel
     {
-        static const int coverageToolId = 0;
-        static const int fileTypeId = 1;
+        static const enum coverageTool coverageToolId = gcov;
+        static const enum coverageTool fileTypeId = llvmcov;
     }
     namespace constArrayInitialization
     {
-        static const int coverageToolId = 0;
-        static const int fileTypeId = 0;
+        static const enum coverageTool coverageToolId = gcov;
+        static const enum coverageTool fileTypeId = llvmcov;
     }
     namespace jumpBlock
     {
-        static const int coverageToolId = 1;
-        static const int fileTypeId = 1;
+        static const enum coverageTool coverageToolId = llvmcov;
+        static const enum coverageTool fileTypeId = llvmcov;
     }
 }

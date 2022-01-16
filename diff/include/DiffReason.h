@@ -12,7 +12,7 @@ public:
     explicit DiffReason(int LineNum, const DiffParser *Parser, int Count);
     const int getLineNum() const;
     const std::string &getDescription() const;
-    const DiffParser *const getParser() const;
+    const DiffParser *getParser() const;
     const int getCount() const;
 
 private:

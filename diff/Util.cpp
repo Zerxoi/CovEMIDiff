@@ -74,11 +74,11 @@ bool util::bfs(const clang::Stmt *root, std::function<bool(const clang::Stmt *)>
     return false;
 }
 
-std::string util::idToString(int id)
+std::string util::str(const enum coverageTool ct)
 {
-    if (id == 0)
+    if (ct == gcov)
         return "gcov";
-    else if (id == 1)
+    else if (ct == llvmcov)
         return "llvm-cov";
     else
         return "";

@@ -2,6 +2,8 @@
 
 #include "clang/AST/Stmt.h"
 #include "clang/AST/ASTContext.h"
+
+#include "Const.h"
 // Diff util namespace
 namespace util
 {
@@ -13,5 +15,5 @@ namespace util
     // Finds whether there is a statement satisfying the specified condition in the AST tree by breadth-first traversal
     bool bfs(const clang::Stmt *root, std::function<bool(const clang::Stmt *)> find);
 
-    std::string idToString(int id);
+    std::string str(enum coverageTool ct);
 }

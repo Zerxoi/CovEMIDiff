@@ -4,11 +4,11 @@
 #include "Const.h"
 #include "DiffParser.h"
 
-DiffParser::DiffParser(const int &CoverageToolId, const int &FileTypeId, const std::string &Description) : CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description) {}
+DiffParser::DiffParser(const enum coverageTool CoverageTool, const enum coverageTool FileType, const std::string &Description) : CoverageTool(CoverageTool), FileType(FileType), Description(Description) {}
 
-const int DiffParser::getFileTypeId() const { return FileTypeId; }
+const enum coverageTool &DiffParser::getCoverageTool() const { return CoverageTool; }
 
-const int DiffParser::getCoverageToolId() const { return CoverageToolId; }
+const enum coverageTool &DiffParser::getFileType() const { return FileType; }
 
 const std::string &DiffParser::getDescription() const { return Description; }
 

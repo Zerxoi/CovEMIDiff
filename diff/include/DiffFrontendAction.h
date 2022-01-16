@@ -5,7 +5,7 @@
 #include "clang/Frontend/FrontendAction.h"
 
 #include "DiffReason.h"
-#include "DiffParser.h"
+#include "Enum.h"
 
 class DiffFrontendAction : public clang::ASTFrontendAction
 {
@@ -18,7 +18,7 @@ private:
     const std::vector<int> &gcovLines;
     const std::vector<int> &llvmcovLines;
     const std::filesystem::path &DirPath;
-    int CoverageToolId;
+    enum coverageTool CoverageTool;
     const std::vector<DiffParser *> *DiffParserVector;
     std::vector<DiffReason *> DiffReasonVector;
 };

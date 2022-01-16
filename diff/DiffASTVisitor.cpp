@@ -1,9 +1,8 @@
-#include "Const.h"
-#include "DiffReason.h"
 #include "DiffASTVisitor.h"
+#include "Const.h"
 
-DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const int Id, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
-    : Context(Context), Lines(Lines), Index(0), CoverageToolId(Id), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};
+DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const enum coverageTool CoverageTool, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
+    : Context(Context), Lines(Lines), Index(0), CoverageTool(CoverageTool), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};
 
 bool DiffASTVisitor::isSkippable(clang::Stmt *s)
 {
@@ -39,7 +38,7 @@ bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
         bool parsed = false;
         for (auto diffParser : *DiffParserVector)
         {
-            if (diffParser->getFileTypeId() == CoverageToolId && diffParser->parse(s, Context))
+            if (diffParser->getFileType() == CoverageTool && diffParser->parse(s, Context))
             {
                 parsed = true;
                 DiffReasonVector.push_back(new DiffReason(LineNum, diffParser, diffParser->getCount()));

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Enum.h"
 #include "clang/AST/Stmt.h"
 #include "clang/AST/ASTContext.h"
 
@@ -7,16 +8,16 @@
 class DiffParser
 {
 public:
-    DiffParser(const int &CoverageToolId, const int &FileTypeId, const std::string &Description);
+    DiffParser(const enum coverageTool CoverageTool, const enum coverageTool FileType, const std::string &Description);
     virtual bool parse(const clang::Stmt *s, clang::ASTContext *Context) = 0;
-    const int getFileTypeId() const;
-    const int getCoverageToolId() const;
+    const enum coverageTool &getCoverageTool() const;
+    const enum coverageTool &getFileType() const;
     const std::string &getDescription() const;
     const int getCount() const;
 
 private:
-    const int &CoverageToolId; // Diff bug is at that coverage tool's ID
-    const int &FileTypeId;     // In which coverage tool's EMI file type can the Diff bug be found
+    const enum coverageTool CoverageTool; // Diff bug is at that coverage tool's ID
+    const enum coverageTool FileType;     // In which coverage tool's EMI file type can the Diff bug be found
     const std::string &Description;
 
 protected:
