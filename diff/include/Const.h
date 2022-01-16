@@ -22,23 +22,23 @@ namespace parser
 {
     namespace ifOptimize
     {
-        static const enum coverageTool coverageToolId = gcov;
-        static const enum coverageTool fileTypeId = gcov;
+        static const enum coverageTool coverageTool = gcov;
+        static const enum coverageTool fileType = gcov;
     }
 
     namespace unmarkedLabel
     {
-        static const enum coverageTool coverageToolId = gcov;
-        static const enum coverageTool fileTypeId = llvmcov;
+        static const enum coverageTool coverageTool = gcov;
+        static const enum coverageTool fileType = llvmcov;
     }
     namespace constArrayInitialization
     {
-        static const enum coverageTool coverageToolId = gcov;
-        static const enum coverageTool fileTypeId = llvmcov;
+        static const enum coverageTool coverageTool = gcov;
+        static const enum coverageTool fileType = llvmcov;
     }
     namespace jumpBlock
     {
-        static const enum coverageTool coverageToolId = llvmcov;
-        static const enum coverageTool fileTypeId = llvmcov;
+        static const enum coverageTool coverageTool = llvmcov;
+        static const enum coverageTool fileType = llvmcov;
     }
 }

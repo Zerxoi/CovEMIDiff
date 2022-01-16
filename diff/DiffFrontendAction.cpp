@@ -47,7 +47,7 @@ void DiffFrontendAction::EndSourceFileAction()
     }
     else
     {
-        throw std::runtime_error("Cannot handle CoverageToolId with value " + CoverageTool);
+        throw std::runtime_error("Cannot handle CoverageTool with value " + CoverageTool);
     }
 
     std::ofstream ofs(path);

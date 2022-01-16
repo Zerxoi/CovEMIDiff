@@ -14,7 +14,7 @@ const std::string &DiffParser::getDescription() const { return Description; }
 
 const int DiffParser::getCount() const { return Count; }
 
-IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffParser(parser::ifOptimize::coverageToolId, parser::ifOptimize::fileTypeId, reason::description::ifOptimize) {}
+IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffParser(parser::ifOptimize::coverageTool, parser::ifOptimize::fileType, reason::description::ifOptimize) {}
 
 // Check if an expression is evaluatable
 // clang::Expr.isEvaluatable method cannot evaluate comma expressions
@@ -60,7 +60,7 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
     return false;
 }
 
-UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(parser::unmarkedLabel::coverageToolId, parser::unmarkedLabel::fileTypeId, reason::description::unmarkedLabel){};
+UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(parser::unmarkedLabel::coverageTool, parser::unmarkedLabel::fileType, reason::description::unmarkedLabel){};
 
 bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
@@ -85,7 +85,7 @@ bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Con
     return false;
 }
 
-ConstArrayInitializationDiffParser::ConstArrayInitializationDiffParser() : DiffParser(parser::constArrayInitialization::coverageToolId, parser::constArrayInitialization::fileTypeId, reason::description::constArrayInitialization){};
+ConstArrayInitializationDiffParser::ConstArrayInitializationDiffParser() : DiffParser(parser::constArrayInitialization::coverageTool, parser::constArrayInitialization::fileType, reason::description::constArrayInitialization){};
 
 bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
@@ -107,7 +107,7 @@ bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTC
     return false;
 }
 
-JumpBlockDiffParser::JumpBlockDiffParser() : PreJumpBlockStmt(nullptr), DiffParser(parser::jumpBlock::coverageToolId, parser::jumpBlock::fileTypeId, reason::description::jumpBlock) {}
+JumpBlockDiffParser::JumpBlockDiffParser() : PreJumpBlockStmt(nullptr), DiffParser(parser::jumpBlock::coverageTool, parser::jumpBlock::fileType, reason::description::jumpBlock) {}
 
 bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
