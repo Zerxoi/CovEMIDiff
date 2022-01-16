@@ -20,6 +20,10 @@ IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffPars
 // clang::Expr.isEvaluatable method cannot evaluate comma expressions
 bool IfOptimizeDiffParser::isEvaluatable(const clang::Expr *expr, const clang::ASTContext &Context)
 {
+    if (clang::isa<clang::OpaqueValueExpr>(expr))
+    {
+        return true;
+    }
     if (auto binOpr = clang::dyn_cast<clang::BinaryOperator>(expr))
     {
         if (binOpr->isCommaOp())

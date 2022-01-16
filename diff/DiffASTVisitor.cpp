@@ -31,10 +31,9 @@ bool DiffASTVisitor::isSkippable(clang::Stmt *s)
 
 bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
 {
-    int LineNum = Lines[Index];
-    if (Index < Lines.size() && LineNum == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
+    int LineNum;
+    if (Index < Lines.size() && (LineNum = Lines[Index]) == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
     {
-
         bool parsed = false;
         for (auto diffParser : *DiffParserVector)
         {

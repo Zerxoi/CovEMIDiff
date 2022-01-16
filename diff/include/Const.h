@@ -34,7 +34,7 @@ namespace parser
     namespace constArrayInitialization
     {
         static const enum coverageTool coverageTool = gcov;
-        static const enum coverageTool fileType = llvmcov;
+        static const enum coverageTool fileType = gcov;
     }
     namespace jumpBlock
     {
