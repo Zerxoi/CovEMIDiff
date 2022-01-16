@@ -11,5 +11,6 @@ int main(int argc, const char *argv[])
     clang::tooling::CommonOptionsParser op(argc, argv, DiffOptionCategory);
     const auto &sources = op.getSourcePathList();
     clang::tooling::ClangTool Tool(op.getCompilations(), sources);
+    clang::CommentColor;
     Tool.run(newDiffFrontendActionFactory(sources[0], sources[1], DirOption).get());
 }

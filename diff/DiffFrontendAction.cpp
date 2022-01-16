@@ -2,6 +2,7 @@
 
 #include "DiffFrontendAction.h"
 #include "DiffASTConsumer.h"
+#include "Const.h"
 #include "Util.h"
 
 DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const std::vector<int> &llvmcovLines, const std::filesystem::path &DirPath, const std::vector<DiffParser *> *DiffParserVector)
@@ -68,7 +69,7 @@ void DiffFrontendAction::EndSourceFileAction()
     }
     while (index < lines->size())
     {
-        ofs << "Terminated@" << lines->at(index++) << "\n";
+        ofs << reason::description::terminated << "@" << lines->at(index++) << "\n";
     }
 
     ofs << "=================================== Diff Report ===================================\n";

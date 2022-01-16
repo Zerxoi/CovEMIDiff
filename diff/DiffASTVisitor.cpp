@@ -32,7 +32,8 @@ bool DiffASTVisitor::isSkippable(clang::Stmt *s)
 
 bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
 {
-    if (Index < Lines.size() && Lines[Index] == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
+    int LineNum = Lines[Index];
+    if (Index < Lines.size() && LineNum == Context->getSourceManager().getSpellingLineNumber(s->getBeginLoc()))
     {
 
         bool parsed = false;
@@ -41,7 +42,7 @@ bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
             if (diffParser->getFileTypeId() == CoverageToolId && diffParser->parse(s, Context))
             {
                 parsed = true;
-                DiffReasonVector.push_back(new DiffReason(Lines[Index], diffParser, diffParser->getCount()));
+                DiffReasonVector.push_back(new DiffReason(LineNum, diffParser, diffParser->getCount()));
                 break;
             }
         }
@@ -49,11 +50,11 @@ bool DiffASTVisitor::VisitStmt(clang::Stmt *s)
         {
             if (isSkippable(s))
             {
-                DiffReasonVector.push_back(new DiffReason(Lines[Index], reason::skippable::description));
+                DiffReasonVector.push_back(new DiffReason(LineNum, reason::description::skippable));
             }
             else
             {
-                DiffReasonVector.push_back(new DiffReason(Lines[Index], reason::unparsed::description));
+                DiffReasonVector.push_back(new DiffReason(LineNum, reason::description::unparsed));
             }
         }
         Index++;

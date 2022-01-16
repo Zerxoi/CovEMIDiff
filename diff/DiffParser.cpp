@@ -1,9 +1,10 @@
 #include "clang/AST/Expr.h"
 
 #include "Util.h"
+#include "Const.h"
 #include "DiffParser.h"
 
-DiffParser::DiffParser(int CoverageToolId, int FileTypeId, std::string Description) : CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description) {}
+DiffParser::DiffParser(const int &CoverageToolId, const int &FileTypeId, const std::string &Description) : CoverageToolId(CoverageToolId), FileTypeId(FileTypeId), Description(Description) {}
 
 const int DiffParser::getFileTypeId() const { return FileTypeId; }
 
@@ -13,54 +14,7 @@ const std::string &DiffParser::getDescription() const { return Description; }
 
 const int DiffParser::getCount() const { return Count; }
 
-UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(0, 1, "Unmarked Label"){};
-
-bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
-{
-    if (clang::isa<clang::LabelStmt>(s))
-    {
-        // Prevent Unmarked Label from nesting normal Label
-        if (!util::bfs(UnmarkedLabelStmt, [s](auto child)
-                       { return child == s; }))
-        {
-            // If Label is not a child statement of Unmarked Label, the Label is a new Unmarked Label
-            UnmarkedLabelStmt = s;
-            Count++;
-        }
-        return true;
-    }
-    // Child statements are also Unmarked Label
-    if (util::bfs(UnmarkedLabelStmt, [s](auto child)
-                  { return child == s; }))
-    {
-        return true;
-    }
-    return false;
-}
-
-ConstArrayInitializationDiffParser::ConstArrayInitializationDiffParser() : DiffParser(0, 0, "Const Array Initialization"){};
-
-bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
-{
-    // There is an initialization of a const array in the declaration statement
-    if (auto declStmt = clang::dyn_cast<clang::DeclStmt>(s))
-    {
-        for (auto decl : declStmt->decls())
-        {
-            if (auto *varDecl = clang::dyn_cast<clang::VarDecl>(decl))
-            {
-                if (varDecl->hasInit() && clang::isa<clang::ConstantArrayType>(varDecl->getType()) && varDecl->getType().isConstQualified())
-                {
-                    Count++;
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffParser(0, 0, "If Optimize") {}
+IfOptimizeDiffParser::IfOptimizeDiffParser() : IfOptimizeStmt(nullptr), DiffParser(parser::ifOptimize::coverageToolId, parser::ifOptimize::fileTypeId, reason::description::ifOptimize) {}
 
 // Check if an expression is evaluatable
 // clang::Expr.isEvaluatable method cannot evaluate comma expressions
@@ -106,7 +60,54 @@ bool IfOptimizeDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Contex
     return false;
 }
 
-JumpBlockDiffParser::JumpBlockDiffParser() : PreJumpBlockStmt(nullptr), DiffParser(1, 1, "Jump Block") {}
+UnmarkedLabelDiffParser::UnmarkedLabelDiffParser() : UnmarkedLabelStmt(nullptr), DiffParser(parser::unmarkedLabel::coverageToolId, parser::unmarkedLabel::fileTypeId, reason::description::unmarkedLabel){};
+
+bool UnmarkedLabelDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
+{
+    if (clang::isa<clang::LabelStmt>(s))
+    {
+        // Prevent Unmarked Label from nesting normal Label
+        if (!util::bfs(UnmarkedLabelStmt, [s](auto child)
+                       { return child == s; }))
+        {
+            // If Label is not a child statement of Unmarked Label, the Label is a new Unmarked Label
+            UnmarkedLabelStmt = s;
+            Count++;
+        }
+        return true;
+    }
+    // Child statements are also Unmarked Label
+    if (util::bfs(UnmarkedLabelStmt, [s](auto child)
+                  { return child == s; }))
+    {
+        return true;
+    }
+    return false;
+}
+
+ConstArrayInitializationDiffParser::ConstArrayInitializationDiffParser() : DiffParser(parser::constArrayInitialization::coverageToolId, parser::constArrayInitialization::fileTypeId, reason::description::constArrayInitialization){};
+
+bool ConstArrayInitializationDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
+{
+    // There is an initialization of a const array in the declaration statement
+    if (auto declStmt = clang::dyn_cast<clang::DeclStmt>(s))
+    {
+        for (auto decl : declStmt->decls())
+        {
+            if (auto *varDecl = clang::dyn_cast<clang::VarDecl>(decl))
+            {
+                if (varDecl->hasInit() && clang::isa<clang::ConstantArrayType>(varDecl->getType()) && varDecl->getType().isConstQualified())
+                {
+                    Count++;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+JumpBlockDiffParser::JumpBlockDiffParser() : PreJumpBlockStmt(nullptr), DiffParser(parser::jumpBlock::coverageToolId, parser::jumpBlock::fileTypeId, reason::description::jumpBlock) {}
 
 bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context)
 {
