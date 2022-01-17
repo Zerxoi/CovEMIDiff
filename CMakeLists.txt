@@ -19,5 +19,5 @@ include_directories(
 # list(APPEND CMAKE_MODULE_PATH ${CLANG_CMAKE_DIR})
 # include(AddClang)
 
-add_subdirectory(emi)
-add_subdirectory(diff)
+add_subdirectory(covemi)
+add_subdirectory(emidiff)

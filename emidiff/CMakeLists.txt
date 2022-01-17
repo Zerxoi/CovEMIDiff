@@ -2,7 +2,7 @@ include_directories(
   "include"
   )
 
-add_executable(diff
+add_executable(emidiff
   main.cpp
   EMIDiff.cpp
   DiffParser.cpp
@@ -14,7 +14,7 @@ add_executable(diff
   Util.cpp
   )
 
-target_link_libraries(diff
+target_link_libraries(emidiff
   PRIVATE
   clangAST
   clangBasic

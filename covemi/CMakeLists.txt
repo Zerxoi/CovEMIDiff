@@ -2,7 +2,7 @@ include_directories(
   "include"
   )
 
-add_executable(emi
+add_executable(covemi
   main.cpp
   EMIFrontendAction.cpp
   EMIASTConsumer.cpp
@@ -10,7 +10,7 @@ add_executable(emi
   CoverageParser.cpp
   )
 
-target_link_libraries(emi 
+target_link_libraries(covemi
   PRIVATE
   clangAST
   clangBasic
