@@ -4,6 +4,7 @@ include_directories(
 
 add_executable(covemi
   main.cpp
+  EMIUtil.cpp
   EMIFrontendAction.cpp
   EMIASTConsumer.cpp
   EMIASTVisitor.cpp

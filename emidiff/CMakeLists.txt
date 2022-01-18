@@ -11,7 +11,7 @@ add_executable(emidiff
   DiffFrontendAction.cpp
   DiffASTConsumer.cpp
   DiffASTVisitor.cpp
-  Util.cpp
+  DiffUtil.cpp
   )
 
 target_link_libraries(emidiff

@@ -1,7 +1,7 @@
 #include "clang/AST/Expr.h"
 
-#include "Util.h"
-#include "Const.h"
+#include "DiffUtil.h"
+#include "DiffConst.h"
 #include "DiffParser.h"
 
 DiffParser::DiffParser(const enum coverageTool CoverageTool, const enum coverageTool FileType, const std::string &Description) : CoverageTool(CoverageTool), FileType(FileType), Description(Description) {}

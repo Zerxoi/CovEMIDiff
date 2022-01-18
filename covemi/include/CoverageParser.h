@@ -12,15 +12,14 @@
 // gcov and llvm-cov respectively
 class CoverageParser
 {
+public:
+    CoverageParser(const std::regex &executed, const std::regex &unexecuted, bool isCountBeforeLineNum);
+    std::set<int> *parse(std::string file);
+    std::map<int, int> &getExecutedMap();
+
 private:
     const std::regex executed;
     const std::regex unexecuted;
     const bool isCountBeforeLineNum;
-    static std::map<int, int> executedMap;
-    static std::vector<int> diffLines;
-
-public:
-    CoverageParser(const std::regex &executed, const std::regex &unexecuted, bool isCountBeforeLineNum);
-    std::set<int> *parse(std::string file);
-    static std::vector<int> &getDiffLines();
+    std::map<int, int> executedMap;
 };

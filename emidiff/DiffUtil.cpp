@@ -1,5 +1,6 @@
 #include <queue>
-#include "Util.h"
+
+#include "DiffUtil.h"
 
 const clang::Stmt *util::getSiblingStmt(const clang::Stmt *s, int n, clang::ASTContext *Context)
 {

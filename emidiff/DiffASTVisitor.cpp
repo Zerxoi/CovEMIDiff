@@ -1,5 +1,5 @@
+#include "DiffConst.h"
 #include "DiffASTVisitor.h"
-#include "Const.h"
 
 DiffASTVisitor::DiffASTVisitor(clang::ASTContext *Context, const std::vector<int> &Lines, const enum coverageTool CoverageTool, const std::vector<DiffParser *> *DiffParserVector, std::vector<DiffReason *> &DiffReasonVector)
     : Context(Context), Lines(Lines), Index(0), CoverageTool(CoverageTool), DiffParserVector(DiffParserVector), DiffReasonVector(DiffReasonVector){};

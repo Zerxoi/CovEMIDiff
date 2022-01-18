@@ -2,9 +2,6 @@
 
 #include "CoverageParser.h"
 
-std::map<int, int> CoverageParser::executedMap;
-std::vector<int> CoverageParser::diffLines;
-
 CoverageParser::CoverageParser(const std::regex &executed, const std::regex &unexecuted, bool isCountBeforeLineNum)
     : executed(executed), unexecuted(unexecuted), isCountBeforeLineNum(isCountBeforeLineNum) {}
 
@@ -40,21 +37,14 @@ std::set<int> *CoverageParser::parse(std::string file)
                 count = std::stoi(sm[2]);
                 lineNum = std::stoi(sm[1]);
             }
-            if (executedMap.count(lineNum) == 0)
-            {
-                executedMap.insert({lineNum, count});
-            }
-            else if (count != executedMap[lineNum])
-            {
-                diffLines.push_back(lineNum);
-            }
+            executedMap.insert({lineNum, count});
         }
     }
     ifs.close();
     return unexecutedSet;
 }
 
-std::vector<int> &CoverageParser::getDiffLines()
+std::map<int, int> &CoverageParser::getExecutedMap()
 {
-    return diffLines;
+    return executedMap;
 }

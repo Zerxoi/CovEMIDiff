@@ -1,10 +1,10 @@
-#include "Const.h"
+#include "EMIConst.h"
 #include "EMIASTVisitor.h"
 
-EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
+EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
     : Parser(parser), Extension(extension), TheRewriter(r), Context(context)
 {
-    Unexecuted = Parser->parse(filename + Extension);
+    Unexecuted = Parser.parse(filename + Extension);
 }
 
 int EMIASTVisitor::getLineNumber(const clang::Stmt *stmt)
@@ -24,7 +24,7 @@ bool EMIASTVisitor::shouldTraversePostOrder() const
     return false;
 }
 
-PreASTVisitor::PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
+PreASTVisitor::PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
     : EMIASTVisitor(r, context, filename, parser, extension)
 {
 }
@@ -58,7 +58,7 @@ bool PreASTVisitor::VisitStmt(clang::Stmt *s)
     return true;
 }
 
-PostASTVisitor::PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
+PostASTVisitor::PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
     : EMIASTVisitor(r, context, filename, parser, extension)
 {
 }

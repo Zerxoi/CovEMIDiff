@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Enum.h"
+#include "DiffEnum.h"
 namespace extension
 {
     static const std::string gcov = ".gcov";

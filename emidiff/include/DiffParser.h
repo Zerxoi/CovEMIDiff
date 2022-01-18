@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Enum.h"
+#include "DiffEnum.h"
 #include "clang/AST/Stmt.h"
 #include "clang/AST/ASTContext.h"
 

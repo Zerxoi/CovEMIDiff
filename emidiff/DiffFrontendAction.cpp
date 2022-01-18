@@ -1,9 +1,9 @@
 #include <fstream>
 
-#include "DiffFrontendAction.h"
+#include "DiffUtil.h"
+#include "DiffConst.h"
 #include "DiffASTConsumer.h"
-#include "Const.h"
-#include "Util.h"
+#include "DiffFrontendAction.h"
 
 DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const std::vector<int> &llvmcovLines, const std::filesystem::path &DirPath, const std::vector<DiffParser *> *DiffParserVector)
     : gcovLines(gcovLines), llvmcovLines(llvmcovLines), DirPath(DirPath), DiffParserVector(DiffParserVector){};

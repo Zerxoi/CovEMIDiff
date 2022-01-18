@@ -2,9 +2,9 @@
 
 #include "clang/AST/ASTConsumer.h"
 
-#include "DiffASTVisitor.h"
+#include "DiffEnum.h"
 #include "DiffReason.h"
-#include "Enum.h"
+#include "DiffASTVisitor.h"
 
 class DiffASTConsumer : public clang::ASTConsumer
 {

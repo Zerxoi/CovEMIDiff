@@ -1,11 +1,11 @@
 #pragma once
 #include <filesystem>
 
-#include "clang/Frontend/CompilerInstance.h"
 #include "clang/Frontend/FrontendAction.h"
+#include "clang/Frontend/CompilerInstance.h"
 
+#include "DiffEnum.h"
 #include "DiffReason.h"
-#include "Enum.h"
 
 class DiffFrontendAction : public clang::ASTFrontendAction
 {

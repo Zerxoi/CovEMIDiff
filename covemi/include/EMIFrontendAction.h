@@ -1,20 +1,15 @@
 #pragma once
-#include "clang/Frontend/FrontendActions.h"
 #include "clang/Rewrite/Core/Rewriter.h"
+#include "clang/Frontend/FrontendActions.h"
+
 #include "EMIASTConsumer.h"
+#include "CoverageParser.h"
 
 // For each source file provided to the tool, a new FrontendAction is created.
 class EMIFrontendAction : public clang::ASTFrontendAction
 {
-protected:
-    const std::string Extension;
-    clang::Rewriter TheRewriter;
-    std::string FileName;
-    int MethodOption;
-    const std::string &OutputOption;
-
 public:
-    EMIFrontendAction(std::string Extension, int MethodOption, const std::string &OutputOption);
+    EMIFrontendAction(std::string Extension, int MethodOption, const std::string &OutputOption, CoverageParser &Parser);
 
     // Write pruned source(EMI) to the local file.
     // The format of local file is <source-name>.<extension>.emi.<source-extension>,
@@ -22,18 +17,26 @@ public:
     void EndSourceFileAction() override;
 
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override = 0;
+
+protected:
+    const std::string Extension;
+    clang::Rewriter TheRewriter;
+    std::string FileName;
+    int MethodOption;
+    const std::string &OutputOption;
+    CoverageParser &Parser;
 };
 
 class GCovFrontendAction : public EMIFrontendAction
 {
 public:
-    GCovFrontendAction(int MethodOption, const std::string &OutputOption);
+    GCovFrontendAction(int MethodOption, const std::string &OutputOption, CoverageParser &Parser);
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override;
 };
 
 class LLVMCovFrontendAction : public EMIFrontendAction
 {
 public:
-    LLVMCovFrontendAction(int MethodOption, const std::string &OutputOption);
+    LLVMCovFrontendAction(int MethodOption, const std::string &OutputOption, CoverageParser &Parser);
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI, clang::StringRef file) override;
 };

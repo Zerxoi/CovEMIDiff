@@ -3,7 +3,8 @@
 #include "clang/AST/Stmt.h"
 #include "clang/AST/ASTContext.h"
 
-#include "Const.h"
+#include "DiffConst.h"
+
 // Diff util namespace
 namespace util
 {

@@ -1,4 +1,4 @@
-#include "Util.h"
+#include "DiffUtil.h"
 #include "DiffReason.h"
 
 DiffReason::DiffReason(int LineNum, const std::string &Description)

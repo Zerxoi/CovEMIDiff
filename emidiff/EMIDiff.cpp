@@ -1,6 +1,5 @@
-#include <filesystem>
 #include <fstream>
-#include <cctype>
+#include <filesystem>
 
 #include "dtl/dtl.hpp"
 #include "EMIDiff.h"

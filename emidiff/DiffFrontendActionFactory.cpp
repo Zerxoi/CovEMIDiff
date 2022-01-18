@@ -1,8 +1,8 @@
 #include <filesystem>
 
-#include "DiffFrontendActionFactory.h"
-#include "DiffFrontendAction.h"
 #include "EMIDiff.h"
+#include "DiffFrontendAction.h"
+#include "DiffFrontendActionFactory.h"
 
 DiffFrontendActionFactory::DiffFrontendActionFactory(const std::string &gcovFile, const std::string &llvmcovFile, const std::string &DirOption)
 {
