@@ -1,3 +1,4 @@
+#include "Const.h"
 #include "EMIASTVisitor.h"
 
 EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser *parser, std::string extension)
@@ -126,7 +127,7 @@ bool shouldDeleteStmt(clang::Stmt *stmt, clang::ASTContext &Context, const std::
         if (isDeletableStmt(child, stmt))
         {
             int line = Context.getSourceManager().getSpellingLineNumber(child->getBeginLoc());
-            if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(child)))
+            if (!Unexecuted->count(line) && (Extension.compare(extension::gcov) || !clang::isa<clang::DeclStmt>(child)))
             {
                 return false;
             }
@@ -140,8 +141,8 @@ bool shouldDeleteStmt(clang::Stmt *stmt, clang::ASTContext &Context, const std::
                 int line = Context.getSourceManager().getSpellingLineNumber(grandchild->getBeginLoc());
                 // In addition to unexecuted statements should be deleted, DeclStatements that are not marked
                 // in the .gcov file should also be deleted
-                // !(Unexecuted->count(line) || (Extension.compare(".gcov") == 0 && clang::isa<clang::DeclStmt>(grandchild))
-                if (!Unexecuted->count(line) && (Extension.compare(".gcov") || !clang::isa<clang::DeclStmt>(grandchild)))
+                // !(Unexecuted->count(line) || (Extension.compare(extension::gcov) == 0 && clang::isa<clang::DeclStmt>(grandchild))
+                if (!Unexecuted->count(line) && (Extension.compare(extension::gcov) || !clang::isa<clang::DeclStmt>(grandchild)))
                 {
                     return false;
                 }

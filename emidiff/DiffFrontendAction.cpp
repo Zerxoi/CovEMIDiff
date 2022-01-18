@@ -1,7 +1,8 @@
-#include "fstream"
+#include <fstream>
 
 #include "DiffFrontendAction.h"
 #include "DiffASTConsumer.h"
+#include "Const.h"
 #include "Util.h"
 
 DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const std::vector<int> &llvmcovLines, const std::filesystem::path &DirPath, const std::vector<DiffParser *> *DiffParserVector)
@@ -10,12 +11,12 @@ DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const 
 std::unique_ptr<clang::ASTConsumer> DiffFrontendAction::CreateASTConsumer(clang::CompilerInstance &Compiler, llvm::StringRef InFile)
 {
     const std::vector<int> *lines;
-    if (InFile.contains(".gcov"))
+    if (InFile.contains(extension::gcov))
     {
         CoverageTool = gcov;
         lines = &gcovLines;
     }
-    else if (InFile.contains(".llvm-cov"))
+    else if (InFile.contains(extension::llvmcov))
     {
         CoverageTool = llvmcov;
         lines = &llvmcovLines;

@@ -3,6 +3,11 @@
 #include <string>
 
 #include "Enum.h"
+namespace extension
+{
+    static const std::string gcov = ".gcov";
+    static const std::string llvmcov = ".llvm-cov";
+}
 
 namespace reason
 {

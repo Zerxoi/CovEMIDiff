@@ -94,7 +94,7 @@ emi_diff()
     gcc -I$CSMITH_INCLUDE_DIR $2/emi/main.llvm-cov.c -o $2/emi/main_llvm-cov -w &&\
     gcc -I$CSMITH_INCLUDE_DIR $2/emi/main.gcov.c -o $2/emi/main_gcov -w
     if [ $? -ne 0 ]; then
-        echo 'Method $1 Task $2 compile error'
+        echo "Method $1 Task $2 compile error and move to $dir/error"
         emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c -d $2/emi -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_cplerr $1 $2
         cp -r $2 $dir/error
@@ -108,7 +108,7 @@ emi_diff()
     $2/emi/main_llvm-cov > $2/emi/llvm-cov.txt &&\
     diff $2/emi/gcov.txt $2/emi/llvm-cov.txt
     if [ $? -ne 0 ]; then
-        echo 'Method $1 Task $2 diff'
+        echo "Method $1 Task $2 diff and move to $dir/error"
         emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c -d $2/emi -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_diff $1 $2
         cp -r $2 $dir/diff
