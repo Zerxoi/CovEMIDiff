@@ -2,8 +2,7 @@ include_directories(
   "include"
   )
 
-add_executable(emidiff
-  main.cpp
+set(LIBRARY_SOURCES
   EMIDiff.cpp
   DiffParser.cpp
   DiffReason.cpp
@@ -14,6 +13,11 @@ add_executable(emidiff
   DiffUtil.cpp
   )
 
+add_executable(emidiff
+  main.cpp
+  ${LIBRARY_SOURCES}
+  )
+
 target_link_libraries(emidiff
   PRIVATE
   clangAST
@@ -21,4 +25,5 @@ target_link_libraries(emidiff
   clangFrontend
   clangSerialization
   clangTooling
+  mysqlcppconn
   )

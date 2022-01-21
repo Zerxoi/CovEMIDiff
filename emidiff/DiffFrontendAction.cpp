@@ -1,12 +1,16 @@
 #include <fstream>
+#include <mysql_driver.h>
+#include <cppconn/driver.h>
+#include <mysql_connection.h>
+#include <cppconn/prepared_statement.h>
 
 #include "DiffUtil.h"
 #include "DiffConst.h"
 #include "DiffASTConsumer.h"
 #include "DiffFrontendAction.h"
 
-DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const std::vector<int> &llvmcovLines, const std::filesystem::path &DirPath, const std::vector<DiffParser *> *DiffParserVector)
-    : gcovLines(gcovLines), llvmcovLines(llvmcovLines), DirPath(DirPath), DiffParserVector(DiffParserVector){};
+DiffFrontendAction::DiffFrontendAction(const std::vector<int> &gcovLines, const std::vector<int> &llvmcovLines, const int TaskIdOption, const int MethodOption, const std::vector<DiffParser *> *DiffParserVector, sql::ConnectOptionsMap &ConnProperties)
+    : gcovLines(gcovLines), llvmcovLines(llvmcovLines), TaskIdOption(TaskIdOption), MethodOption(MethodOption), DiffParserVector(DiffParserVector), ConnProperties(ConnProperties){};
 
 std::unique_ptr<clang::ASTConsumer> DiffFrontendAction::CreateASTConsumer(clang::CompilerInstance &Compiler, llvm::StringRef InFile)
 {
@@ -30,20 +34,14 @@ std::unique_ptr<clang::ASTConsumer> DiffFrontendAction::CreateASTConsumer(clang:
 
 void DiffFrontendAction::EndSourceFileAction()
 {
-    std::filesystem::create_directories(DirPath);
-    std::filesystem::path path = DirPath;
     std::string coverageTool;
     const std::vector<int> *lines;
     if (CoverageTool == gcov)
     {
-        path /= "gcov.map";
-        coverageTool = "gcov";
         lines = &gcovLines;
     }
     else if (CoverageTool == llvmcov)
     {
-        path /= "llvm-cov.map";
-        coverageTool = "llvm-cov";
         lines = &llvmcovLines;
     }
     else
@@ -51,41 +49,56 @@ void DiffFrontendAction::EndSourceFileAction()
         throw std::runtime_error("Cannot handle CoverageTool with value " + CoverageTool);
     }
 
-    std::ofstream ofs(path);
-
-    int index = 0;
-    for (; index < DiffReasonVector.size(); index++)
+    if (DiffReasonVector.size() > 0)
     {
-        const DiffReason *reason = DiffReasonVector.at(index);
-        if (reason->getParser() != nullptr)
-        {
-            auto parser = reason->getParser();
-            ofs << util::str(parser->getCoverageTool()) << ":" << parser->getDescription() << "#" << parser->getCount() << "@" << reason->getLineNum() << "\n";
-        }
-        else
-        {
-            ofs << reason->getDescription() << "@" << reason->getLineNum() << "\n";
-        }
-    }
-    while (index < lines->size())
-    {
-        ofs << reason::description::terminated << "@" << lines->at(index++) << "\n";
-    }
 
-    ofs << "=================================== Diff Report ===================================\n";
-    int total = 0;
-    for (const auto &parser : *DiffParserVector)
-    {
-        if (parser->getFileType() == CoverageTool)
+        sql::Driver *driver = get_driver_instance();
+        sql::Connection *conn = driver->connect(ConnProperties);
+        conn->setSchema("covemidiff");
+        std::stringstream sstream;
+        sstream << "INSERT INTO diff (task_id, method, file_type_id, line_num, reason, coverage_tool_id, count) VALUES ";
+        for (int i = 0; i < lines->size() - 1; i++)
         {
-            int count = parser->getCount();
-            total += count;
-            ofs << "#" << util::str(parser->getCoverageTool()) << "@" << parser->getDescription() << ":" << count << "\n";
+            sstream << "(?, ?, ?, ?, ?, ?, ?), ";
         }
-    }
-    ofs << "\n";
-    ofs << "Total:" << total << "\n";
+        sstream << "(?, ?, ?, ?, ?, ?, ?)";
+        sql::PreparedStatement *prep_stmt = conn->prepareStatement(sstream.str());
 
-    ofs.close();
-    llvm::outs() << coverageTool << " diff reason location: " << path << "\n";
+        int index = 0;
+        for (; index < DiffReasonVector.size(); index++)
+        {
+            int base = 7 * index;
+            const DiffReason *reason = DiffReasonVector.at(index);
+            prep_stmt->setInt(base + 1, TaskIdOption);
+            prep_stmt->setInt(base + 2, MethodOption);
+            prep_stmt->setInt(base + 3, CoverageTool);
+            prep_stmt->setInt(base + 4, reason->getLineNum());
+            prep_stmt->setString(base + 5, reason->getDescription());
+            if (reason->getParser() != nullptr)
+            {
+                auto parser = reason->getParser();
+                prep_stmt->setInt(base + 6, parser->getCoverageTool());
+                prep_stmt->setInt(base + 7, parser->getCount());
+            }
+            else
+            {
+                prep_stmt->setInt(base + 6, 0);
+                prep_stmt->setInt(base + 7, 0);
+            }
+        }
+        while (index < lines->size())
+        {
+            int base = 7 * index;
+            prep_stmt->setInt(base + 1, TaskIdOption);
+            prep_stmt->setInt(base + 2, MethodOption);
+            prep_stmt->setInt(base + 3, CoverageTool);
+            prep_stmt->setInt(base + 4, lines->at(index++));
+            prep_stmt->setString(base + 5, reason::description::terminated);
+            prep_stmt->setInt(base + 6, 0);
+            prep_stmt->setInt(base + 7, 0);
+        }
+        prep_stmt->executeUpdate();
+        delete prep_stmt;
+        delete conn;
+    }
 }

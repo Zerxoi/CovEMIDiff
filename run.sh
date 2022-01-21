@@ -3,8 +3,12 @@
 usage()
 {
   echo "Options: 
-  -b, --begin=<Begin ID>    Begin ID of the task, default value is 1;
-  -e, --end=<End ID>        End ID of task, default value is 10;
+  -b, --begin=<Begin ID>        Begin ID of the task, default value is 1;
+  -e, --end=<End ID>            End ID of task, default value is 10;
+  -h, --host=<Hostname>         Connect to MySQL host, default value is localhost;
+  -P, --port=<Port>             Port number to use for MySQL connection, default value is 3306;
+  -u, --user=<Username>         User for login MySQL, default value is root;
+  -p, --password=<Password>     Password for login MySQL;
 
 Environment Variables:
   CSMITH_INCLUDE_DIR        path to CSmith include directory;
@@ -58,13 +62,20 @@ fi
 # Parse options
 BEGIN=1
 END=10
-PARSED_ARGUMENTS=`getopt -o b:e: --long begin:,end: -- $@` || usage
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+PARSED_ARGUMENTS=`getopt -o b:e:h:u:p: --long begin:,end:,host:,user:,password: -- $@` || usage
 eval set -- "$PARSED_ARGUMENTS"
 while :
 do
   case "$1" in
-    -b | --begin)  BEGIN="$2" ; shift 2 ;;
-    -e | --end) END="$2"; shift 2 ;;
+    -b | --begin)       BEGIN="$2"; shift 2 ;;
+    -e | --end)         END="$2"; shift 2 ;;
+    -h | --host)        MYSQL_HOST="$2"; shift 2 ;;
+    -P | --port)        MYSQL_PORT="$2"; shift 2 ;;
+    -u | --user)        MYSQL_USER="$2"; shift 2 ;;
+    -p | --password)    MYSQL_PWD="$2"; shift 2 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     # If invalid options were passed, then getopt should have reported an error,
@@ -95,9 +106,10 @@ emi_diff()
     gcc -I$CSMITH_INCLUDE_DIR $2/emi/main.gcov.c -o $2/emi/main_gcov -w
     if [ $? -ne 0 ]; then
         echo "Method $1 Task $2 compile error and move to $dir/error"
-        emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c -d $2/emi -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
+        emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c --id $2 -m $1 -h ${MYSQL_HOST} --port ${MYSQL_PORT} -u ${MYSQL_USER} --pwd ${MYSQL_PWD} -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_cplerr $1 $2
         cp -r $2 $dir/error
+        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 'Compile Error')"
         rm -r $2/emi
         return
     fi
@@ -109,9 +121,10 @@ emi_diff()
     diff $2/emi/gcov.txt $2/emi/llvm-cov.txt
     if [ $? -ne 0 ]; then
         echo "Method $1 Task $2 diff and move to $dir/error"
-        emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c -d $2/emi -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
+        emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c --id $2 -m $1 -h ${MYSQL_HOST} --port ${MYSQL_PORT} -u ${MYSQL_USER} --pwd ${MYSQL_PWD} -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_diff $1 $2
         cp -r $2 $dir/diff
+        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 'Different Result')"
     fi
 
     # No exception to the task
