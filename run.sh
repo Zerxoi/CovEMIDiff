@@ -105,11 +105,11 @@ emi_diff()
     gcc -I$CSMITH_INCLUDE_DIR $2/emi/main.llvm-cov.c -o $2/emi/main_llvm-cov -w &&\
     gcc -I$CSMITH_INCLUDE_DIR $2/emi/main.gcov.c -o $2/emi/main_gcov -w
     if [ $? -ne 0 ]; then
-        echo "Method $1 Task $2 compile error and move to $dir/error"
+        echo "Method $1 Task $2 compile error and move to $dir"
         emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c --id $2 -m $1 -h ${MYSQL_HOST} --port ${MYSQL_PORT} -u ${MYSQL_USER} --pwd ${MYSQL_PWD} -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_cplerr $1 $2
-        cp -r $2 $dir/error
-        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 'Compile Error')"
+        cp -r $2 $dir
+        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 0)"
         rm -r $2/emi
         return
     fi
@@ -120,11 +120,11 @@ emi_diff()
     $2/emi/main_llvm-cov > $2/emi/llvm-cov.txt &&\
     diff $2/emi/gcov.txt $2/emi/llvm-cov.txt
     if [ $? -ne 0 ]; then
-        echo "Method $1 Task $2 diff and move to $dir/error"
+        echo "Method $1 Task $2 diff and move to $dir"
         emidiff $2/emi/main.gcov.c $2/emi/main.llvm-cov.c --id $2 -m $1 -h ${MYSQL_HOST} --port ${MYSQL_PORT} -u ${MYSQL_USER} --pwd ${MYSQL_PWD} -- -I $CSMITH_INCLUDE_DIR -w -ferror-limit=0
         add_diff $1 $2
-        cp -r $2 $dir/diff
-        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 'Different Result')"
+        cp -r $2 $dir
+        MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi(task_id, method, status) VALUES ($2, $1, 1)"
     fi
 
     # No exception to the task
