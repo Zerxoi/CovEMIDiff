@@ -124,5 +124,5 @@ Generic Options:
 ## Execute the experiment
 
 ```shell
-❯ CSMITH_INCLUDE_DIR=/path/to/csmith/include CSMITH_BIN_DIR=/path/to/csmith/bin BUILD_DIR=/path/to/CovEMIDiff/build ./run.sh -u root -p root
+$ CSMITH_INCLUDE_DIR=/path/to/csmith/include CSMITH_BIN_DIR=/path/to/csmith/bin BUILD_DIR=/path/to/CovEMIDiff/build ./run.sh -u root -p root
 ```
