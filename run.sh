@@ -148,7 +148,7 @@ do
     echo "============================= Task $i ============================="
     mkdir $i
     # Generates test cases with CSmith
-    csmith > $i/main.c
+    csmith | clang-format > $i/main.c
 
     # Generate the gcov and llvm-cov coverage reports of test cases respectively
     # In order to avoid that the program cannot return normally due to the infinite loop 

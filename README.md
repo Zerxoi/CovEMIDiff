@@ -7,7 +7,7 @@ EMI tool based on LibTooling on Ubuntu 20.04
 Dependencies install:
 
 ```shell
-apt install llvm clang cmake ninja-build libclang-10-dev build-essential mysql-server libmysqlcppconn-dev 
+sudo apt install llvm clang cmake ninja-build libclang-10-dev build-essential mysql-server libmysqlcppconn-dev clang-format
 ```
 
 Csmith:
