@@ -13,7 +13,7 @@ namespace parser
 {
     namespace gcov
     {
-        static const std::regex executed = std::regex("^\\s*(\\d+):\\s*(\\d+):.*$");
+        static const std::regex executed = std::regex("^\\s*(\\d+)\\*?:\\s*(\\d+):.*$");
         static const std::regex unexecuted = std::regex("^\\s*#####:\\s*(\\d+):.*$");
         static const bool isCountBeforeLineNum = true;
     }

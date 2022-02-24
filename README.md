@@ -46,8 +46,16 @@ CREATE TABLE `covemidiff`.`diff` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unqi_key` (`task_id`,`method`,`file_type_id`,`line_num`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-```
 
+CREATE TABLE `covemidiff`.`diff_lines` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task_id` int NOT NULL DEFAULT '0',
+  `method` int NOT NULL DEFAULT '0',
+  `line_num` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_key` (`task_id`,`method`,`line_num`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
 ## Project build
 
 ```shell
@@ -71,6 +79,8 @@ If the parent statement is marked as unexecuted, but there are executed child st
 
 Use the `-o` option to decide the output directory for EMI files.
 
+If the covemi command has no `--id` option, inconsistent information about the line execution frequency in the source code coverage report will be saved in the `diffLines` file in the same directory as the EMI file; If you pass the `--id` option and set the MySQL connection option at the same time, the inconsistent information about the execution frequency will be saved in the `diff_lines` table of the MySQL `covemidiff` database.
+
 ```
 $ build/covemi/covemi --help
 USAGE: covemi [options] <source0> [... <sourceN>]
@@ -81,9 +91,14 @@ EMI Options:
 
   --extra-arg=<string>        - Additional argument to append to the compiler command line
   --extra-arg-before=<string> - Additional argument to prepend to the compiler command line
+  -h=<string>                 - MySQL host option
+  --id=<int>                  - Task Id option
   -m=<int>                    - EMI prune method
   -o=<string>                 - Explicitly specify a output directory
   -p=<string>                 - Build path
+  --port=<int>                - MySQL port option
+  --pwd=<string>              - MySQL password option
+  -u=<string>                 - MySQL user option
 
 Generic Options:
 

@@ -51,7 +51,6 @@ void DiffFrontendAction::EndSourceFileAction()
 
     if (DiffReasonVector.size() > 0)
     {
-
         sql::Driver *driver = get_driver_instance();
         sql::Connection *conn = driver->connect(ConnProperties);
         conn->setSchema("covemidiff");

@@ -15,11 +15,11 @@ class CoverageParser
 public:
     CoverageParser(const std::regex &executed, const std::regex &unexecuted, bool isCountBeforeLineNum);
     std::set<int> *parse(std::string file);
-    std::map<int, int> &getExecutedMap();
+    std::map<int, int> &getCountMap();
 
 private:
     const std::regex executed;
     const std::regex unexecuted;
     const bool isCountBeforeLineNum;
-    std::map<int, int> executedMap;
+    std::map<int, int> countMap;
 };

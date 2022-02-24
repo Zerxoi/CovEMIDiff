@@ -21,7 +21,9 @@ std::set<int> *CoverageParser::parse(std::string file)
         std::smatch sm;
         if (std::regex_match(line, sm, unexecuted))
         {
-            unexecutedSet->insert(std::stoi(sm[1]));
+            int lineNum = std::stoi(sm[1]);
+            unexecutedSet->insert(lineNum);
+            countMap.insert({lineNum, 0});
         }
         else if (std::regex_match(line, sm, executed))
         {
@@ -37,14 +39,14 @@ std::set<int> *CoverageParser::parse(std::string file)
                 count = std::stoi(sm[2]);
                 lineNum = std::stoi(sm[1]);
             }
-            executedMap.insert({lineNum, count});
+            countMap.insert({lineNum, count});
         }
     }
     ifs.close();
     return unexecutedSet;
 }
 
-std::map<int, int> &CoverageParser::getExecutedMap()
+std::map<int, int> &CoverageParser::getCountMap()
 {
-    return executedMap;
+    return countMap;
 }
