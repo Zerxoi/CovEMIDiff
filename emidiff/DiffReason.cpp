@@ -1,5 +1,6 @@
-#include "DiffUtil.h"
 #include "DiffReason.h"
+
+#include "DiffUtil.h"
 
 DiffReason::DiffReason(int LineNum, const std::string &Description)
     : LineNum(LineNum), Description(Description), Parser(nullptr), Count(0){};

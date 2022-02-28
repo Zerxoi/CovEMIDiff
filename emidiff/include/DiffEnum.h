@@ -1,6 +1,6 @@
 #pragma once
 
 enum coverageTool {
-    gcov,
-    llvmcov
+  gcov,
+  llvmcov
 };

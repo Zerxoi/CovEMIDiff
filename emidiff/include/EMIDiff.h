@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 // Compare the file lines of 'gcovFile' and 'llvmcovFile', put the inconsistent lines of 'gcovFile'
 // into 'gcovVector', and put the inconsistent lines of 'llvmcovFile' into 'llvmcovVector'
