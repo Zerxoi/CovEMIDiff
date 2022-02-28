@@ -148,14 +148,16 @@ do
     echo "============================= Task $i ============================="
     mkdir $i
     # Generates test cases with CSmith
-    csmith | clang-format > $i/main.c
+    csmith | clang-format-15 > $i/main.c
 
     # Generate the gcov and llvm-cov coverage reports of test cases respectively
     # In order to avoid that the program cannot return normally due to the infinite loop 
     # in the test case, a timeout period of 3 seconds is set for each test program execution,
     # and the timeout task will be put into the timeout queue.
+
+    # Experiment with old versions of gcc and clang 
     cd $i
-    clang -fprofile-instr-generate -fcoverage-mapping -I$CSMITH_INCLUDE_DIR -w main.c -o main_clang &&\
+    clang-10 -fprofile-instr-generate -fcoverage-mapping -I$CSMITH_INCLUDE_DIR -w main.c -o main_clang &&\
     LLVM_PROFILE_FILE="main.profraw" timeout 3 ./main_clang
     if [ $? -ne 0 ]; then
         echo "Task $i timeout"
@@ -166,12 +168,34 @@ do
         echo $timeout_cnt > timeout.txt
         continue
     fi
-    llvm-profdata merge -sparse main.profraw -o main.profdata
-    llvm-cov show ./main_clang -instr-profile=main.profdata ./ | c++filt > main.c.llvm-cov
-    gcc --coverage -I$CSMITH_INCLUDE_DIR main.c -o main_gcc -w &&\
+    llvm-profdata-10 merge -sparse main.profraw -o main.profdata
+    llvm-cov-10 show ./main_clang -instr-profile=main.profdata ./ | c++filt > main.c.llvm-cov
+    gcc-9 --coverage -I$CSMITH_INCLUDE_DIR main.c -c -w &&\
+    gcc-9 --coverage main.o -o main_gcc -w &&\
     timeout 3 ./main_gcc
-    gcov main.c -m > /dev/null
+    gcov-9 main.c -m > /dev/null
     cd ..
+
+    # # Experiment with new versions of gcc and clang 
+    # cd $i
+    # clang-15 -fprofile-instr-generate -fcoverage-mapping -I$CSMITH_INCLUDE_DIR -w main.c -o main_clang &&\
+    # LLVM_PROFILE_FILE="main.profraw" timeout 3 ./main_clang
+    # if [ $? -ne 0 ]; then
+    #     echo "Task $i timeout"
+    #     timeout+=($i)
+    #     cd ..
+    #     rm -r $i
+    #     let timeout_cnt++
+    #     echo $timeout_cnt > timeout.txt
+    #     continue
+    # fi
+    # llvm-profdata-15 merge -sparse main.profraw -o main.profdata
+    # llvm-cov-15 show ./main_clang -instr-profile=main.profdata ./ | c++filt > main.c.llvm-cov
+    # gcc-11 --coverage -I$CSMITH_INCLUDE_DIR main.c -c -w &&\
+    # gcc-11 --coverage main.o -o main_gcc -w &&\
+    # timeout 3 ./main_gcc
+    # gcov-11 main.c -m > /dev/null
+    # cd ..
 
     emi_diff 0 $i
     emi_diff 1 $i

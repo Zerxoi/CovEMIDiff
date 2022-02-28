@@ -2,13 +2,59 @@
 
 EMI tool based on LibTooling on Ubuntu 20.04
 
-## Project Dependencies
+## Project preparation
 
-Dependencies install:
+### Dependencies install
 
 ```shell
-sudo apt install llvm clang cmake ninja-build libclang-10-dev build-essential mysql-server libmysqlcppconn-dev clang-format
+sudo apt install llvm clang cmake ninja-build libclang-10-dev build-essential mysql-server libmysqlcppconn-dev
 ```
+
+The gcc and clang versions installed by default in the Ubuntu 20.04 package manager are 9.4.0 and 10.0.0 respectively.Because clang-format-15 needs to be used for formatting and differential testing between old and new versions is required, the latest clang and gcc need to be installed.
+
+### Install the latest version of clang
+
+Content reference [here](https://apt.llvm.org/).
+
+To retrieve the archive signature:
+```shell
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+```
+
+Add the following to the end of `/etc/apt/sources.list`:
+
+```
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal main
+# 13
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main
+# 14
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main
+```
+
+Install clang 15 and clang-format 15
+
+```shell
+sudo apt install clang-15 clang-format-15
+```
+
+### Install the latest version of gcc
+
+Run the following command to add the Toolchain repository:
+
+```shell
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+```
+
+Install gcc 11:
+
+```shell
+sudo apt install gcc-11
+```
+
+### Download and build Csmith
 
 Csmith:
 
@@ -19,6 +65,8 @@ sudo apt install g++ cmake m4
 cmake -DCMAKE_INSTALL_PREFIX=<INSTALL-PREFIX> .
 make && make install
 ```
+
+### Create databases and tables
 
 MySQL script:
 
@@ -141,3 +189,12 @@ Generic Options:
 ```shell
 $ CSMITH_INCLUDE_DIR=/path/to/csmith/include CSMITH_BIN_DIR=/path/to/csmith/bin BUILD_DIR=/path/to/CovEMIDiff/build ./run.sh -u root -p root
 ```
+
+
+### Version switch
+
+The experiment defaults to using older versions of gcc and clang for experiments.
+
+If you need to experiment with the new version and compare it with the old version, you need to comment the code coverage generation script of the old version in `run.sh` and use the code coverage generation script of the new version instead.
+
+It should be noted that the Task IDs of the old and new versions should be distinguished as much as possible for later statistics.
