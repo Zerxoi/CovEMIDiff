@@ -2,8 +2,8 @@
 
 #include "EMIConst.h"
 
-EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename, int MethodOption, CoverageParser &Parser)
-    : Context(Context), filename(filename), MethodOption(MethodOption), Parser(Parser) {}
+EMIASTConsumer::EMIASTConsumer(clang::ASTContext &Context, std::string &filename, const std::string &CoverageToolVersion, int MethodOption)
+    : Context(Context), filename(filename), CoverageToolVersion(CoverageToolVersion), MethodOption(MethodOption) {}
 
 bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR) {
   clang::SourceManager &srcMgr = Context.getSourceManager();
@@ -20,26 +20,28 @@ bool EMIASTConsumer::HandleTopLevelDecl(clang::DeclGroupRef DR) {
   return true;
 }
 
-GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption, CoverageParser &Parser)
-    : EMIASTConsumer(Context, filename, MethodOption, Parser) {
+GCovConsumer::GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, const std::string &CoverageToolVersion, int MethodOption)
+    : EMIASTConsumer(Context, filename, CoverageToolVersion, MethodOption) {
   Visitor = CreateVisitor(R, Context, filename);
 }
 
 EMIASTVisitor *GCovConsumer::CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) {
+  CoverageParser Parser = CoverageParser(parser::gcov::executed, parser::gcov::unexecuted, parser::gcov::isCountBeforeLineNum);
   if (MethodOption == 1) {
-    return new PostASTVisitor(R, Context, filename, Parser, extension::gcov);
+    return new PostASTVisitor(R, Context, filename, Parser, CoverageToolVersion, extension::gcov);
   }
-  return new PreASTVisitor(R, Context, filename, Parser, extension::gcov);
+  return new PreASTVisitor(R, Context, filename, Parser, CoverageToolVersion, extension::gcov);
 }
 
-LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption, CoverageParser &Parser)
-    : EMIASTConsumer(Context, filename, MethodOption, Parser) {
+LLVMCovConsumer::LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, const std::string &CoverageToolVersion, int MethodOption)
+    : EMIASTConsumer(Context, filename, CoverageToolVersion, MethodOption) {
   Visitor = CreateVisitor(R, Context, filename);
 };
 
 EMIASTVisitor *LLVMCovConsumer::CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename) {
+  CoverageParser Parser = CoverageParser(parser::llvmcov::executed, parser::llvmcov::unexecuted, parser::llvmcov::isCountBeforeLineNum);
   if (MethodOption == 1) {
-    return new PostASTVisitor(R, Context, filename, Parser, extension::llvmcov);
+    return new PostASTVisitor(R, Context, filename, Parser, CoverageToolVersion, extension::llvmcov);
   }
-  return new PreASTVisitor(R, Context, filename, Parser, extension::llvmcov);
+  return new PreASTVisitor(R, Context, filename, Parser, CoverageToolVersion, extension::llvmcov);
 }

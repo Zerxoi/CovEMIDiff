@@ -20,7 +20,7 @@ bool isEmptyLine(const std::string &line) {
 
 void EMIDiff(const std::string gcovFile, const std::string llvmcovFile, std::vector<int> &gcovVector, std::vector<int> &llvmcovVector) {
   if (!std::filesystem::exists(gcovFile) || !std::filesystem::exists(llvmcovFile)) {
-    throw std::runtime_error("EMI files do not exist");
+    throw std::runtime_error("EMI files do not exist [" + gcovFile + ", " + llvmcovFile + "]");
   }
 
   std::ifstream gcovIfs(gcovFile);

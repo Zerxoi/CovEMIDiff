@@ -2,9 +2,9 @@
 
 #include "EMIConst.h"
 
-EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
+EMIASTVisitor::EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension)
     : Parser(parser), Extension(extension), TheRewriter(r), Context(context) {
-  Unexecuted = Parser.parse(filename + Extension);
+  Unexecuted = Parser.parse(filename + (coverageToolVersion.empty() ? "" : ("." + coverageToolVersion)) + Extension);
 }
 
 int EMIASTVisitor::getLineNumber(const clang::Stmt *stmt) {
@@ -21,8 +21,8 @@ bool EMIASTVisitor::shouldTraversePostOrder() const {
   return false;
 }
 
-PreASTVisitor::PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
-    : EMIASTVisitor(r, context, filename, parser, extension) {
+PreASTVisitor::PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension)
+    : EMIASTVisitor(r, context, filename, parser, coverageToolVersion, extension) {
 }
 
 bool PreASTVisitor::VisitStmt(clang::Stmt *s) {
@@ -51,8 +51,8 @@ bool PreASTVisitor::VisitStmt(clang::Stmt *s) {
   return true;
 }
 
-PostASTVisitor::PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, std::string filename, CoverageParser &parser, std::string extension)
-    : EMIASTVisitor(r, context, filename, parser, extension) {
+PostASTVisitor::PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension)
+    : EMIASTVisitor(r, context, filename, parser, coverageToolVersion, extension) {
 }
 
 bool PostASTVisitor::shouldTraversePostOrder() const {

@@ -6,7 +6,7 @@
 // by the Clang parser.
 class EMIASTConsumer : public clang::ASTConsumer {
  public:
-  EMIASTConsumer(clang::ASTContext &Context, std::string &filename, int MethodOption, CoverageParser &Parser);
+  EMIASTConsumer(clang::ASTContext &Context, std::string &filename, const std::string &CoverageToolVersion, int MethodOption);
   // Override the method that gets called for each parsed top-level declaration.
   bool HandleTopLevelDecl(clang::DeclGroupRef DR) override;
   // Create visistor of code coverage tools
@@ -16,18 +16,18 @@ class EMIASTConsumer : public clang::ASTConsumer {
   EMIASTVisitor *Visitor;
   clang::ASTContext &Context;
   std::string filename;
+  const std::string &CoverageToolVersion;
   int MethodOption;
-  CoverageParser &Parser;
 };
 
 class LLVMCovConsumer : public EMIASTConsumer {
  public:
-  LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption, CoverageParser &Parser);
+  LLVMCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, const std::string &CoverageToolVersion, int MethodOption);
   EMIASTVisitor *CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
 };
 
 class GCovConsumer : public EMIASTConsumer {
  public:
-  GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, int MethodOption, CoverageParser &Parser);
+  GCovConsumer(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, const std::string &CoverageToolVersion, int MethodOption);
   EMIASTVisitor *CreateVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename);
 };

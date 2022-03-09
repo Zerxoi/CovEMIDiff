@@ -8,8 +8,8 @@
 #include "EMIUtil.h"
 #include "clang/Frontend/CompilerInstance.h"
 
-EMIFrontendAction::EMIFrontendAction(std::string Extension, int MethodOption, const std::string &OutputOption, CoverageParser &Parser)
-    : Extension(Extension), MethodOption(MethodOption), OutputOption(OutputOption), Parser(Parser) {}
+EMIFrontendAction::EMIFrontendAction(std::string Extension, const std::string &CoverageToolVersion, int MethodOption, const std::string &OutputOption)
+    : Extension(Extension), CoverageToolVersion(CoverageToolVersion), MethodOption(MethodOption), OutputOption(OutputOption) {}
 
 void EMIFrontendAction::EndSourceFileAction() {
   clang::SourceManager &SM = TheRewriter.getSourceMgr();
@@ -23,30 +23,36 @@ void EMIFrontendAction::EndSourceFileAction() {
 
   emiPath /= filePath.stem();
   emiPath += Extension;
+  if (MethodOption == method::pre) {
+    emiPath += extension::pre;
+  } else if (MethodOption == method::post) {
+    emiPath += extension::post;
+  }
+  if (!CoverageToolVersion.empty()) {
+    emiPath += "." + CoverageToolVersion;
+  }
   emiPath += filePath.extension();
-
   std::filesystem::create_directories(emiPath.parent_path());
-  std::string path = emiPath.string();
+  std::string path = emiPath.lexically_normal();
   llvm::raw_fd_ostream ofs(path, err);
   TheRewriter.getEditBuffer(SM.getMainFileID()).write(ofs);
   ofs.close();
-  llvm::outs() << "EMI file location: " << path << "\n";
 }
 
-GCovFrontendAction::GCovFrontendAction(int MethodOption, const std::string &OutputOption, CoverageParser &Parser)
-    : EMIFrontendAction(extension::gcov, MethodOption, OutputOption, Parser) {}
+GCovFrontendAction::GCovFrontendAction(const std::string &CoverageToolVersion, int MethodOption, const std::string &OutputOption)
+    : EMIFrontendAction(extension::gcov, CoverageToolVersion, MethodOption, OutputOption) {}
 
 std::unique_ptr<clang::ASTConsumer> GCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file) {
   TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
   FileName = file.str();
-  return std::make_unique<GCovConsumer>(TheRewriter, CI.getASTContext(), file, MethodOption, Parser);
+  return std::make_unique<GCovConsumer>(TheRewriter, CI.getASTContext(), file, CoverageToolVersion, MethodOption);
 }
 
-LLVMCovFrontendAction::LLVMCovFrontendAction(int MethodOption, const std::string &OutputOption, CoverageParser &Parser)
-    : EMIFrontendAction(extension::llvmcov, MethodOption, OutputOption, Parser) {}
+LLVMCovFrontendAction::LLVMCovFrontendAction(const std::string &CoverageToolVersion, int MethodOption, const std::string &OutputOption)
+    : EMIFrontendAction(extension::llvmcov, CoverageToolVersion, MethodOption, OutputOption) {}
 
 std::unique_ptr<clang::ASTConsumer> LLVMCovFrontendAction::CreateASTConsumer(clang::CompilerInstance &CI, llvm::StringRef file) {
   TheRewriter.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
   FileName = file.str();
-  return std::make_unique<LLVMCovConsumer>(TheRewriter, CI.getASTContext(), file, MethodOption, Parser);
+  return std::make_unique<LLVMCovConsumer>(TheRewriter, CI.getASTContext(), file, CoverageToolVersion, MethodOption);
 }

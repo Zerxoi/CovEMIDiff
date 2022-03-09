@@ -6,6 +6,8 @@
 namespace extension {
 static const std::string gcov = ".gcov";
 static const std::string llvmcov = ".llvm-cov";
+static const std::string pre = ".pre";
+static const std::string post = ".post";
 }  // namespace extension
 
 namespace parser {
@@ -21,3 +23,15 @@ static const std::regex unexecuted = std::regex("^\\s*(\\d+)\\|\\s*0\\|.*$");
 static const bool isCountBeforeLineNum = false;
 }  // namespace llvmcov
 }  // namespace parser
+
+namespace method {
+enum emiMethod {
+  pre,
+  post
+};
+}
+
+namespace tool {
+static const std::string gcov = "gcov";
+static const std::string llvmcov = "llvm-cov";
+}  // namespace tool

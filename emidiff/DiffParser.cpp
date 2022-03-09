@@ -100,7 +100,7 @@ bool JumpBlockDiffParser::parse(const clang::Stmt *s, clang::ASTContext *Context
   }
   // If the previous sibling statement is a clause that does not contain the previous JumpBlock statement
   // but does contain a jump statement, then it may be a new JumpBlock statement
-  if (util::bfs(preStmt, [](const clang::Stmt *child) { return child != nullptr && (clang::isa<clang::ReturnStmt>(child) || clang::isa<clang::BreakStmt>(child) || clang::isa<clang::ContinueStmt>(child)); })) {
+  if (util::bfs(preStmt, [](const clang::Stmt *child) { return child != nullptr && (clang::isa<clang::ReturnStmt>(child) || clang::isa<clang::BreakStmt>(child) || clang::isa<clang::ContinueStmt>(child)); })) {    
     Count++;
     PreJumpBlockStmt = s;
     return true;

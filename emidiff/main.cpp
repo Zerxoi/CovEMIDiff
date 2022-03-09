@@ -4,8 +4,7 @@
 #include "cppconn/connection.h"
 
 static llvm::cl::OptionCategory DiffOptionCategory("Diff Options");
-static llvm::cl::opt<int> TaskIdOption("id", llvm::cl::desc("Task Id option"), llvm::cl::cat(DiffOptionCategory));
-static llvm::cl::opt<int> MethodOption("m", llvm::cl::desc("EMI prune method option"), llvm::cl::cat(DiffOptionCategory));
+static llvm::cl::opt<int> DiffIdOption("id", llvm::cl::desc("Diff Id option"), llvm::cl::cat(DiffOptionCategory));
 static llvm::cl::opt<std::string> HostOption("h", llvm::cl::desc("MySQL host option"), llvm::cl::cat(DiffOptionCategory));
 static llvm::cl::opt<int> PortOption("port", llvm::cl::desc("MySQL port option"), llvm::cl::cat(DiffOptionCategory));
 static llvm::cl::opt<std::string> UserOption("u", llvm::cl::desc("MySQL user option"), llvm::cl::cat(DiffOptionCategory));
@@ -35,5 +34,5 @@ int main(int argc, const char *argv[]) {
   }
 
   clang::tooling::ClangTool Tool(op.getCompilations(), sources);
-  Tool.run(newDiffFrontendActionFactory(sources[0], sources[1], TaskIdOption, MethodOption, ConnProperties).get());
+  Tool.run(newDiffFrontendActionFactory(sources[0], sources[1], DiffIdOption, ConnProperties).get());
 }

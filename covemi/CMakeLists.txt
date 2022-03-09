@@ -23,5 +23,4 @@ target_link_libraries(covemi
   clangRewrite
   clangSerialization
   clangTooling
-  mysqlcppconn
   )

@@ -7,7 +7,7 @@
 // we're interested in by overriding relevant methods.
 class EMIASTVisitor : public clang::RecursiveASTVisitor<EMIASTVisitor> {
  public:
-  EMIASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser &parser, std::string extension);
+  EMIASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension);
 
   // Get line number of the statement
   int getLineNumber(const clang::Stmt *stmt);
@@ -27,7 +27,7 @@ class EMIASTVisitor : public clang::RecursiveASTVisitor<EMIASTVisitor> {
 // the statement will be pruned, in order to expose more inconsistencies in results
 class PreASTVisitor : public EMIASTVisitor {
  public:
-  PreASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser &parser, std::string extension);
+  PreASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension);
   bool VisitStmt(clang::Stmt *s);
 };
 
@@ -37,7 +37,7 @@ class PreASTVisitor : public EMIASTVisitor {
 // and it is easier to find inconsistent coverage
 class PostASTVisitor : public EMIASTVisitor {
  public:
-  PostASTVisitor(clang::Rewriter &R, clang::ASTContext &Context, std::string filename, CoverageParser &parser, std::string extension);
+  PostASTVisitor(clang::Rewriter &r, clang::ASTContext &context, const std::string &filename, CoverageParser &parser, const std::string &coverageToolVersion, const std::string &extension);
   bool shouldTraversePostOrder() const;
   bool VisitStmt(clang::Stmt *s);
 };
