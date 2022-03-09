@@ -33,7 +33,7 @@ void DiffFrontendAction::EndSourceFileAction() {
     sql::Connection *conn = driver->connect(ConnProperties);
     conn->setSchema("covemidiff");
     std::stringstream sstream;
-    sstream << "INSERT INTO `diff_reasons` (`diff_id`, `file_type_id`, `line_num`, `reason`, `coverage_tool_id`, `count`) VALUES ";
+    sstream << "INSERT INTO `diff_reason` (`diff_id`, `file_type_id`, `line_num`, `reason`, `coverage_tool_id`, `count`) VALUES ";
     for (int i = 0; i < Lines.size() - 1; i++) {
       sstream << "(?, ?, ?, ?, ?, ?), ";
     }

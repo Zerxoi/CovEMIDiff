@@ -48,7 +48,7 @@ function run_code()
 # task_id, coverage_tool, version
 function insert_report()
 {
-    $(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.reports (task_id, coverage_tool, version, content) VALUES ('$1', '$2', '$3', load_file('`pwd`/main.c.$3.$2'));")
+    $(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.report (task_id, coverage_tool, version, content) VALUES ('$1', '$2', '$3', load_file('`pwd`/main.c.$3.$2'));")
 }
 
 # version, task_id
@@ -89,13 +89,13 @@ function generate_emi()
         emi_output=`./main.out`
         rm main.out
     fi
-    $(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emis (task_id, coverage_tool, version, method, content, result) VALUES ('$4', '$1', '$2', '$3', load_file('`pwd`/main.$1.$method.$2.c'), '$emi_output');")
+    $(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi_file (task_id, coverage_tool, version, method, content, result) VALUES ('$4', '$1', '$2', '$3', load_file('`pwd`/main.$1.$method.$2.c'), '$emi_output');")
 }
 
 # coverage_tool_1, version_1, method_1, coverage_tool_2, version_2, method_2, task_id
 function emi_diff()
 {
-    results=`MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -s -e "SELECT result FROM covemidiff.emis WHERE task_id = '$7' AND ((coverage_tool = '$1' AND version = '$2' AND method = '$3') OR (coverage_tool = '$4' AND version = '$5' AND method = '$6'));"`
+    results=`MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -s -e "SELECT result FROM covemidiff.emi_file WHERE task_id = '$7' AND ((coverage_tool = '$1' AND version = '$2' AND method = '$3') OR (coverage_tool = '$4' AND version = '$5' AND method = '$6'));"`
     result1=`echo "$results" | sed -n 1p`
     result2=`echo "$results" | sed -n 2p`
     if [ -z "$result1" ] || [ -z "$result2" ]; then
@@ -107,7 +107,7 @@ function emi_diff()
             diff_result=2
         fi
     fi
-    diff_id=`MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.diffs (task_id, coverage_tool_1, version_1, method_1, coverage_tool_2, version_2, method_2, result) VALUES ('$7', '$1', '$2', '$3', '$4', '$5', '$6', '$diff_result'); SELECT LAST_INSERT_ID() id;"`
+    diff_id=`MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.emi_diff (task_id, coverage_tool_1, version_1, method_1, coverage_tool_2, version_2, method_2, result) VALUES ('$7', '$1', '$2', '$3', '$4', '$5', '$6', '$diff_result'); SELECT LAST_INSERT_ID() id;"`
     diff_id=`echo $diff_id | awk '{print $2}'`
 
     if [ $diff_result -ne 0 ]; then
@@ -155,7 +155,7 @@ do
 
     result=`run_code`
 
-    id=$(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.tasks(content, result) VALUES (load_file('`pwd`/main.c'), '$result'); SELECT LAST_INSERT_ID() id;")
+    id=$(MYSQL_PWD=${MYSQL_PWD} mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -e "INSERT INTO covemidiff.task(content, result) VALUES (load_file('`pwd`/main.c'), '$result'); SELECT LAST_INSERT_ID() id;")
     id=`echo $id | awk '{print $2}'`
 
     if [ -z "$result" ]; then
