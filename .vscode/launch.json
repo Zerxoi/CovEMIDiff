@@ -1,0 +1,94 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "EMI",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/covemi/covemi",
+            "args": [
+                // "/home/zerxoi/CovEMIDiff/experiment/post/5/main.c",
+                // "/home/zerxoi/cov/csmith/main.c",
+                "/home/zerxoi/test/main.c",
+                "-t",
+                "gcov",
+                "-v",
+                "9",
+                "-m",
+                "0",
+                "-o",
+                "test",
+                // add header search path to Clang Tool
+                "--",
+                "-I",
+                "/home/zerxoi/csmith/include",
+                "-w"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build"
+        },
+        {
+            "name": "Diff",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/emidiff/emidiff",
+            "args": [
+                // "/home/zerxoi/test/pre/main.gcov.c",
+                // "/home/zerxoi/test/pre/main.llvm-cov.c",
+                // "/home/zerxoi/cov/csmith/emi/main.gcov.c",
+                // "/home/zerxoi/cov/csmith/emi/main.llvm-cov.c",
+                // "/home/zerxoi/test/tmp/main.llvm-cov.1.10.c",
+                // "/home/zerxoi/test/tmp/main.gcov.1.9.c",
+                "experiment/post/38/emi/main.llvm-cov.c",
+                "experiment/post/38/emi/main.gcov.c",
+                // add header search path to Clang Tool
+                "--id",
+                "501",
+                "-u",
+                "zerxoi",
+                "--pwd",
+                "0201zouxin",
+                "--",
+                "-I",
+                "/home/zerxoi/csmith/include",
+                "-w",
+                "-ferror-limit=0"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build"
+        }
+    ]
+}
